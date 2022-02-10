@@ -1,0 +1,29 @@
+{
+	"FileVersion": 3,
+	"Version": 4,
+	"VersionName": "4.0",
+	"FriendlyName": "WIZMO-TOOLS UE Plugin",
+	"Description": "WIZMO Tools Plugin for UnrealEngine.",
+	"Category": "MotionDevice",
+	"CreatedBy": "WIZAPPLY CO.,LTD",
+	"CreatedByURL": "https://motion.wizapply.com",
+	"DocsURL": "https://github.com/Wizapply/WIZMO-TOOLS",
+	"MarketplaceURL": "",
+	"SupportURL": "https://wizapply.com",
+	"EnabledByDefault": true,
+	"CanContainContent": false,
+	"IsBetaVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "WIZMOPlugin",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"WhitelistPlatforms": [
+				"Win64",
+				"Win32",
+				"Linux"
+			]
+		}
+	]
+}
