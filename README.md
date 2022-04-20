@@ -57,15 +57,15 @@ SIMVR本体にライセンスが付与されますので、所有者・利用者
 ※ANTSEATやLAN接続時はアプリケーションの認証は必要ありません。  
 
 ## エミュレータについて
-[![WizapplySS010](resources/screenshot_010.png)](https://github.com/Wizapply/WIZMO-TOOLS/tree/master/tools/wizmo_emulator)   
+[![WizapplySS010](resources/screenshot_010.png)](https://github.com/Wizapply/WIZMO-TOOLS/tree/main/tools/simvr_emulator)   
 エミュレータは実機が無くても動作確認ができるシステムです。  
-「tools」フォルダ内の「[**simvr_emulator**](https://github.com/Wizapply/WIZMO-TOOLS/tree/master/tools/wizmo_emulator)」をご確認ください。
+「tools」フォルダ内の「[**simvr_emulator**](https://github.com/Wizapply/WIZMO-TOOLS/tree/main/tools/simvr_emulator)」をご確認ください。
 
 ## シーケンサについて
-[![WizapplySS011](resources/screenshot_011.jpg)](https://github.com/Wizapply/SIMVR-Tools/tree/master/tools/simvr_sequencer)   
+[![WizapplySS011](resources/screenshot_011.jpg)](https://github.com/Wizapply/WIZMO-TOOLS/tree/main/tools/simvr_sequencer)   
 シーケンサは動画やタイミングコマンドと連動した動きを付けるためのツール群です。  
 ゲームエンジンやプログラミングの難しい知識なしにシミュレータを使用できます。  
-「tools」内の「[**simvr_sequencer**](https://github.com/Wizapply/SIMVR-Tools/tree/master/tools/simvr_sequencer)」をご確認ください。
+「tools」内の「[**simvr_sequencer**](https://github.com/Wizapply/WIZMO-TOOLS/tree/main/tools/simvr_sequencer)」をご確認ください。
 
 ## お問い合わせ先
 これらGitHubにアップロードされている全てのファイルについてのご質問・ご報告は、下記連絡先までお問い合わせください。  
