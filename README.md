@@ -44,8 +44,6 @@ WIZMO-TOOLSは、WIZAPPLYのサポートが認定された多軸モーション�
 
 ### 実行・セットアップ
 WIZMO-TOOLSの使い方・セットアップについては、[**SIMVR-Tools Wiki**](https://github.com/Wizapply/SIMVR-Tools/wiki "SIMVR-Tools Wiki")にまとめておりますので、そちらをご覧ください。  
-[![WizapplySIMVR](resources/howtosimvr.jpg)](https://github.com/Wizapply/SIMVR-Tools/wiki)
-
 ※改修予定
 
 ## 開発向けライセンスについて
@@ -53,7 +51,7 @@ WIZMO-TOOLSの使い方・セットアップについては、[**SIMVR-Tools Wik
 筐体にライセンスされて、ご利用が認められておりますので、別の筐体によるビジネスや展示会等でご利用の際は追加でライセンスしてください。  
 SIMVR本体にライセンスが付与されますので、所有者・利用者に制限はありません。  
 
-開発しているアプリケーションを認証するには[**WIZMOキーのオンライン発行**](http://simvr01.com/simvrkeygen/)でキーを取得してください。  
+開発しているアプリケーションを認証するには[**WIZMOキーのオンライン発行**](https://simvr.wizapply.com/simvrkeygen/)でキーを取得してください。  
 ※ANTSEATやLAN接続時はアプリケーションの認証は必要ありません。  
 
 ## エミュレータについて
