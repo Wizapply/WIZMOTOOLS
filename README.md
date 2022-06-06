@@ -1,9 +1,9 @@
-WIZMO-TOOLS (SIMVR SDK, ANTSEAT SDK)
+WIZMOTOOLS (SIMVR SDK, ANTSEAT SDK)
 ==================
 
 ![wizmotools](resources/wizmotools.jpg)
 
-WIZMO-TOOLSは、WIZAPPLYのサポートが認定された多軸モーションシミュレータ機（SIMVR、ANTSEAT等）を簡単に稼働させるためのシステムツール群です。ピッチ・ヨー・ロール、ヒーヴ・スウェイ・サージの動きがこの開発ツールで動作させることが可能です。ここでは、アプリケーションを開発するための信頼性の高いツール・プログラムがあります。  
+WIZMOTOOLSは、WIZAPPLYのサポートが認定された多軸モーションシミュレータ機（SIMVR、ANTSEAT等）を簡単に稼働させるためのシステムツール群です。ピッチ・ヨー・ロール、ヒーヴ・スウェイ・サージの動きがこの開発ツールで動作させることが可能です。ここでは、アプリケーションを開発するための信頼性の高いツール・プログラムがあります。  
 今後、様々な外部アタッチメントを用いたカスタムのVRシミュレータなども対応予定です。
 
 ライセンスされたモーションシミュレータ用で、デバイス1台につき1ライセンス必要です。ライセンス希望の方は[お問い合わせ先](#お問い合わせ先)までご連絡くださいますようお願い致します。
@@ -14,7 +14,7 @@ WIZMO-TOOLSは、WIZAPPLYのサポートが認定された多軸モーション�
 ## WIZMO対応シミュレータ
 * SIMVR製品ページ ： <https://motion.wizapply.com/simvr/>
 * SIMVR 6DOF製品ページ： <https://motion.wizapply.com/simvr6dof/>
-* ANTSEAT製品ページ： <https://motion.wizapply.com/antseat>
+* ANTSEAT製品ページ： <https://motion.wizapply.com/antseat/>
 
 
 ## フォルダ構成
@@ -43,7 +43,7 @@ WIZMO-TOOLSは、WIZAPPLYのサポートが認定された多軸モーション�
 ![WizapplySS001](resources/screenshot_001.png)  
 
 ### 実行・セットアップ
-WIZMO-TOOLSの使い方・セットアップについては、[**SIMVR-Tools Wiki**](https://github.com/Wizapply/SIMVR-Tools/wiki "SIMVR-Tools Wiki")にまとめておりますので、そちらをご覧ください。  
+WIZMOTOOLSの使い方・セットアップについては、[**SIMVR-Tools Wiki**](https://github.com/Wizapply/SIMVR-Tools/wiki "SIMVR-Tools Wiki")にまとめておりますので、そちらをご覧ください。  
 ※改修予定
 
 ## 開発向けライセンスについて
@@ -55,15 +55,15 @@ SIMVR本体にライセンスが付与されますので、所有者・利用者
 ※ANTSEATやLAN接続時はアプリケーションの認証は必要ありません。  
 
 ## エミュレータについて
-[![WizapplySS010](resources/screenshot_010.png)](https://github.com/Wizapply/WIZMO-TOOLS/tree/main/tools/simvr_emulator)   
+[![WizapplySS010](resources/screenshot_010.png)](https://github.com/Wizapply/WIZMOTOOLS/tree/main/tools/simvr_emulator)   
 エミュレータは実機が無くても動作確認ができるシステムです。  
-「tools」フォルダ内の「[**simvr_emulator**](https://github.com/Wizapply/WIZMO-TOOLS/tree/main/tools/simvr_emulator)」をご確認ください。
+「tools」フォルダ内の「[**simvr_emulator**](https://github.com/Wizapply/WIZMOTOOLS/tree/main/tools/simvr_emulator)」をご確認ください。
 
 ## シーケンサについて
-[![WizapplySS011](resources/screenshot_011.jpg)](https://github.com/Wizapply/WIZMO-TOOLS/tree/main/tools/simvr_sequencer)   
+[![WizapplySS011](resources/screenshot_011.jpg)](https://github.com/Wizapply/WIZMOTOOLS/tree/main/tools/simvr_sequencer)   
 シーケンサは動画やタイミングコマンドと連動した動きを付けるためのツール群です。  
 ゲームエンジンやプログラミングの難しい知識なしにシミュレータを使用できます。  
-「tools」内の「[**simvr_sequencer**](https://github.com/Wizapply/WIZMO-TOOLS/tree/main/tools/simvr_sequencer)」をご確認ください。
+「tools」内の「[**simvr_sequencer**](https://github.com/Wizapply/WIZMOTOOLS/tree/main/tools/simvr_sequencer)」をご確認ください。
 
 ## お問い合わせ先
 これらGitHubにアップロードされている全てのファイルについてのご質問・ご報告は、下記連絡先までお問い合わせください。  
