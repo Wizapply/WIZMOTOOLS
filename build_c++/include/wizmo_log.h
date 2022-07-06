@@ -44,11 +44,12 @@
 namespace WIZMOSDK {
 namespace Debug {
 
-	const int WIZMOLOG_MAXCOUNT = 2048;	//2KB
+	const int WIZMOLOG_MAXCOUNT = 4096;	//4KB
 
 	WIZMOPORT void Log(std::string message);
 	WIZMOPORT void LogWarning(std::string message);
-	WIZMOPORT void LogError(std::string message);
+	WIZMOPORT void Log(std::string serial, std::string message);
+	WIZMOPORT void LogWarning(std::string serial, std::string message);
 	WIZMOPORT int GetBackLogData(char* buffer_p, int buffer_size);
 	WIZMOPORT int GetBackLogDataAvailable();
 

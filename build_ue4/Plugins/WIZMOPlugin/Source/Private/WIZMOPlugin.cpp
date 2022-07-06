@@ -10,25 +10,24 @@ DEFINE_LOG_CATEGORY(WIZMOLog);
 
 //LoadLibrary
 extern "C" {
-	typedef int(*WIZMOOpen_ptr)(const char* serialNo);
-	typedef int(*WIZMOClose_ptr)();
-	typedef void(*WIZMOWrite_ptr)(WIZMOPacket* packet);
-
-	typedef void(*WIZMOSetOriginMode_ptr)(bool value);
-	typedef bool(*WIZMOGetOriginMode_ptr)();
-
-	typedef void(*WIZMOSetAxisProcessingMode_ptr)(bool value);
-	typedef bool(*WIZMOGetAxisProcessingMode_ptr)();
-
-	typedef const char*(*WIZMOGetAppCode_ptr)();
-
-	typedef int(*WIZMOGetState_ptr)();
-	typedef const char*(*WIZMOGetVersion_ptr)();
-
-	typedef int (*WIZMOGetBackLog_ptr)(char* str, int str_size);
-	typedef int (*WIZMOBackLogDataAvailable_ptr)();
-
-	typedef bool(*WIZMOIsRunning_ptr)();
+	typedef WIZMOHANDLE(*wizmoOpen_ptr)(const char* appCode);
+	typedef WIZMOHANDLE(*wizmoOpenSerialAssign_ptr)(const char* appCode, const char* assign);
+	typedef WIZMOHANDLE(*wizmoClose_ptr)(WIZMOHANDLE handle);
+	typedef void(*wizmoWrite_ptr)(WIZMOHANDLE handle, WIZMOPacket* packet);
+	typedef void(*wizmoSetOriginMode_ptr)(WIZMOHANDLE handle, bool value);
+	typedef bool(*wizmoGetOriginMode_ptr)(WIZMOHANDLE handle);
+	typedef void(*wizmoSetAxisProcessingMode_ptr)(WIZMOHANDLE handle, bool value);
+	typedef bool(*wizmoGetAxisProcessingMode_ptr)(WIZMOHANDLE handle);
+	typedef void(*wizmoSetVariableGainMode_ptr)(WIZMOHANDLE handle, bool value);
+	typedef bool(*wizmoGetVariableGainMode_ptr)(WIZMOHANDLE handle);
+	typedef const char*(*wizmoGetAppCode_ptr)(WIZMOHANDLE handle);
+	typedef const char*(*wizmoGetSerialNumber_ptr)(WIZMOHANDLE handle);
+	typedef int(*wizmoGetState_ptr)(WIZMOHANDLE handle);
+	typedef int(*wizmoGetStatusEXT4_ptr)(WIZMOHANDLE handle);
+	typedef const char*(*wizmoGetVersion_ptr)(WIZMOHANDLE handle);
+	typedef int (*wizmoGetBackLog_ptr)(char* buffer_p, int buffer_size);
+	typedef int (*wizmoBackLogDataAvailable_ptr)();
+	typedef bool(*wizmoIsRunning_ptr)(WIZMOHANDLE handle);
 }
 
 class FWIZMOPlugin : public IWIZMOPlugin
@@ -39,33 +38,48 @@ public:
 	virtual void ShutdownModule() override;
 
 	//Control
-	virtual void Open(const char* serialId) override;
-	virtual void Close() override;
-	virtual void UpdateBackLog() override;
-	virtual void UpdateWIZMO(WIZMOPacket* data) override;
+	virtual WIZMOHANDLE Open(const char* appCode, const char* serialAssign) override;
+	virtual void Close(WIZMOHANDLE handle) override;
 
-	virtual void SetAxisProcesser(bool value) override;
-	virtual void SetOrigin(bool value) override;
-	virtual char* GetAppCode() override;
-	virtual int GetState() override;
+	virtual void UpdateBackLog() override;
+	virtual void UpdateWIZMO(WIZMOHANDLE handle, WIZMOPacket* data) override;
+	
+	virtual void SetOriginMode(WIZMOHANDLE handle, bool value) override;
+	virtual bool GetOriginMode(WIZMOHANDLE handle) override;
+	virtual void SetAxisProcessingMode(WIZMOHANDLE handle, bool value) override;
+	virtual bool GetAxisProcessingMode(WIZMOHANDLE handle) override;
+	virtual void SetVariableGainMode(WIZMOHANDLE handle, bool value) override;
+	virtual bool GetVariableGainMode(WIZMOHANDLE handle) override;
+	
+	virtual const char* GetAppCode(WIZMOHANDLE handle) override;
+	virtual const char* GetWIZMOSerialNumber(WIZMOHANDLE handle) override;
+	virtual const char* GetVersion(WIZMOHANDLE handle) override;
+	virtual bool IsRunning(WIZMOHANDLE handle) override;
+	virtual int GetState(WIZMOHANDLE handle) override;
+	virtual int GetStatusEXT4(WIZMOHANDLE handle) override;
 
 private:
 	HINSTANCE hLibrary;
 
 public:
-	WIZMOOpen_ptr wizmoOpen;
-	WIZMOClose_ptr wizmoClose;
-	WIZMOWrite_ptr wizmoWrite;
-	WIZMOSetOriginMode_ptr wizmoSetOrigin;
-	WIZMOGetOriginMode_ptr wizmoGetOrigin;
-	WIZMOSetAxisProcessingMode_ptr wizmoSetAxisProcessingMode;
-	WIZMOGetAxisProcessingMode_ptr wizmoGetAxisProcessingMode;
-	WIZMOGetAppCode_ptr wizmoGetAppCode;
-	WIZMOGetState_ptr wizmoGetState;
-	WIZMOGetVersion_ptr wizmoGetVersion;
-	WIZMOGetBackLog_ptr wizmoGetBackLogData;
-	WIZMOBackLogDataAvailable_ptr wizmoGetBackLogDataAvailable;
-	WIZMOIsRunning_ptr wizmoIsRunning;
+	wizmoOpen_ptr wizmoOpen;
+	wizmoOpenSerialAssign_ptr wizmoOpenSerialAssign;
+	wizmoClose_ptr wizmoClose;
+	wizmoWrite_ptr wizmoWrite;
+	wizmoSetOriginMode_ptr wizmoSetOriginMode;
+	wizmoGetOriginMode_ptr wizmoGetOriginMode;
+	wizmoSetAxisProcessingMode_ptr wizmoSetAxisProcessingMode;
+	wizmoGetAxisProcessingMode_ptr wizmoGetAxisProcessingMode;
+	wizmoSetVariableGainMode_ptr wizmoSetVariableGainMode;
+	wizmoGetVariableGainMode_ptr wizmoGetVariableGainMode;
+	wizmoGetAppCode_ptr wizmoGetAppCode;
+	wizmoGetSerialNumber_ptr wizmoGetSerialNumber;
+	wizmoGetState_ptr wizmoGetState;
+	wizmoGetStatusEXT4_ptr wizmoGetStatusEXT4;
+	wizmoGetVersion_ptr wizmoGetVersion;
+	wizmoGetBackLog_ptr wizmoGetBackLog;
+	wizmoBackLogDataAvailable_ptr wizmoBackLogDataAvailable;
+	wizmoIsRunning_ptr wizmoIsRunning;
 
 	bool isDllLoaded;
 	bool isOpen;
@@ -83,19 +97,24 @@ void FWIZMOPlugin::StartupModule()
 	hLibrary = LoadLibrary(TEXT("wizmo.dll"));
 	if (hLibrary != NULL)
 	{
-		wizmoOpen = reinterpret_cast<WIZMOOpen_ptr>(::GetProcAddress(hLibrary, "wizmoOpen"));
-		wizmoClose = reinterpret_cast<WIZMOClose_ptr>(::GetProcAddress(hLibrary, "wizmoClose"));
-		wizmoWrite = reinterpret_cast<WIZMOWrite_ptr>(::GetProcAddress(hLibrary, "wizmoWrite"));
-		wizmoSetOrigin = reinterpret_cast<WIZMOSetOriginMode_ptr>(::GetProcAddress(hLibrary, "wizmoSetOriginMode"));
-		wizmoGetOrigin = reinterpret_cast<WIZMOGetOriginMode_ptr>(::GetProcAddress(hLibrary, "wizmoGetOriginMode"));
-		wizmoSetAxisProcessingMode = reinterpret_cast<WIZMOSetAxisProcessingMode_ptr>(::GetProcAddress(hLibrary, "wizmoSetAxisProcessingMode"));
-		wizmoGetAxisProcessingMode = reinterpret_cast<WIZMOGetAxisProcessingMode_ptr>(::GetProcAddress(hLibrary, "wizmoGetAxisProcessingMode"));
-		wizmoGetAppCode = reinterpret_cast<WIZMOGetAppCode_ptr>(::GetProcAddress(hLibrary, "wizmoGetAppCode"));
-		wizmoGetState = reinterpret_cast<WIZMOGetState_ptr>(::GetProcAddress(hLibrary, "wizmoGetState"));
-		wizmoGetVersion = reinterpret_cast<WIZMOGetVersion_ptr>(::GetProcAddress(hLibrary, "wizmoGetVersion"));
-		wizmoGetBackLogData = reinterpret_cast<WIZMOGetBackLog_ptr>(::GetProcAddress(hLibrary, "wizmoGetBackLog"));
-		wizmoGetBackLogDataAvailable = reinterpret_cast<WIZMOBackLogDataAvailable_ptr>(::GetProcAddress(hLibrary, "wizmoBackLogDataAvailable"));
-		wizmoIsRunning = reinterpret_cast<WIZMOIsRunning_ptr>(::GetProcAddress(hLibrary, "wizmoIsRunning"));
+		wizmoOpen = reinterpret_cast<wizmoOpen_ptr>(::GetProcAddress(hLibrary, "wizmoOpen"));
+		wizmoOpenSerialAssign = reinterpret_cast<wizmoOpenSerialAssign_ptr>(::GetProcAddress(hLibrary, "wizmoOpenSerialAssign"));
+		wizmoClose = reinterpret_cast<wizmoClose_ptr>(::GetProcAddress(hLibrary, "wizmoClose"));
+		wizmoWrite = reinterpret_cast<wizmoWrite_ptr>(::GetProcAddress(hLibrary, "wizmoWrite"));
+		wizmoSetOriginMode = reinterpret_cast<wizmoSetOriginMode_ptr>(::GetProcAddress(hLibrary, "wizmoSetOriginMode"));
+		wizmoGetOriginMode = reinterpret_cast<wizmoGetOriginMode_ptr>(::GetProcAddress(hLibrary, "wizmoGetOriginMode"));
+		wizmoSetAxisProcessingMode = reinterpret_cast<wizmoSetAxisProcessingMode_ptr>(::GetProcAddress(hLibrary, "wizmoSetAxisProcessingMode"));
+		wizmoGetAxisProcessingMode = reinterpret_cast<wizmoGetAxisProcessingMode_ptr>(::GetProcAddress(hLibrary, "wizmoGetAxisProcessingMode"));
+		wizmoSetVariableGainMode = reinterpret_cast<wizmoSetVariableGainMode_ptr>(::GetProcAddress(hLibrary, "wizmoSetVariableGainMode"));
+		wizmoGetVariableGainMode = reinterpret_cast<wizmoGetVariableGainMode_ptr>(::GetProcAddress(hLibrary, "wizmoGetVariableGainMode"));
+		wizmoGetAppCode = reinterpret_cast<wizmoGetAppCode_ptr>(::GetProcAddress(hLibrary, "wizmoGetAppCode"));
+		wizmoGetState = reinterpret_cast<wizmoGetState_ptr>(::GetProcAddress(hLibrary, "wizmoGetState"));
+		wizmoGetSerialNumber = reinterpret_cast<wizmoGetSerialNumber_ptr>(::GetProcAddress(hLibrary, "wizmoGetSerialNumber"));
+		wizmoGetStatusEXT4 = reinterpret_cast<wizmoGetStatusEXT4_ptr>(::GetProcAddress(hLibrary, "wizmoGetStatusEXT4"));
+		wizmoGetVersion = reinterpret_cast<wizmoGetVersion_ptr>(::GetProcAddress(hLibrary, "wizmoGetVersion"));
+		wizmoGetBackLog = reinterpret_cast<wizmoGetBackLog_ptr>(::GetProcAddress(hLibrary, "wizmoGetBackLog"));
+		wizmoBackLogDataAvailable = reinterpret_cast<wizmoBackLogDataAvailable_ptr>(::GetProcAddress(hLibrary, "wizmoBackLogDataAvailable"));
+		wizmoIsRunning = reinterpret_cast<wizmoIsRunning_ptr>(::GetProcAddress(hLibrary, "wizmoIsRunning"));
 
 		isDllLoaded = true;
 	}
@@ -108,28 +127,29 @@ void FWIZMOPlugin::StartupModule()
 void FWIZMOPlugin::ShutdownModule()
 {
 	if (hLibrary != NULL) {
-		Close();
 		FreeLibrary(hLibrary);
 	}
 }
 
-void FWIZMOPlugin::Open(const char* serialId)
+WIZMOHANDLE FWIZMOPlugin::Open(const char* appCode, const char* serialAssign)
 {
 	if (!isDllLoaded)
-		return;
+		return WIZMOHANDLE_ERROR;
 
-	if (wizmoOpen(serialId) < 0) {
+	WIZMOHANDLE handle = wizmoOpenSerialAssign(appCode, serialAssign);
+	if (handle < 0) {
 		UE_LOG(WIZMOLog, Log, TEXT("WIZMO Open Error. Check the code!"));
-		return;
+		return WIZMOHANDLE_ERROR;
 	}
+	return handle;
 }
 
-void FWIZMOPlugin::Close()
+void FWIZMOPlugin::Close(WIZMOHANDLE handle)
 {
 	if (!isDllLoaded)
 		return;
 
-	wizmoClose();
+	wizmoClose(handle);
 }
 
 void FWIZMOPlugin::UpdateBackLog()
@@ -141,9 +161,9 @@ void FWIZMOPlugin::UpdateBackLog()
 	char wizmoLogBuf[BUFFERSIZE];
 	WCHAR wStrW[BUFFERSIZE];
 
-	auto size = wizmoGetBackLogDataAvailable();
+	auto size = wizmoBackLogDataAvailable();
 	if (size > 0) {
-		size = wizmoGetBackLogData(wizmoLogBuf, size);
+		size = wizmoGetBackLog(wizmoLogBuf, size);
 		if (size > 0) {
 			size_t wLen = 0;
 			mbstowcs_s(&wLen, wStrW, size, wizmoLogBuf, _TRUNCATE);
@@ -152,45 +172,104 @@ void FWIZMOPlugin::UpdateBackLog()
 	}
 }
 
-void FWIZMOPlugin::UpdateWIZMO(WIZMOPacket* data)
+void FWIZMOPlugin::UpdateWIZMO(WIZMOHANDLE handle, WIZMOPacket* data)
 {
 	if (!isDllLoaded)
 		return;
 
-	if (wizmoIsRunning() == false)
+	if (wizmoIsRunning(handle) == false)
 		return;
 
-	wizmoWrite(data);
+	wizmoWrite(handle, data);
 }
 
-void FWIZMOPlugin::SetAxisProcesser(bool value) 
+void FWIZMOPlugin::SetOriginMode(WIZMOHANDLE handle, bool value)
 {
 	if (!isDllLoaded)
 		return;
-
-	wizmoSetAxisProcessingMode(value);
+	wizmoSetOriginMode(handle, value);
 }
 
-void FWIZMOPlugin::SetOrigin(bool value)
+bool FWIZMOPlugin::GetOriginMode(WIZMOHANDLE handle)
+{
+	if (!isDllLoaded)
+		return false;
+	return wizmoGetOriginMode(handle);
+}
+
+void FWIZMOPlugin::SetAxisProcessingMode(WIZMOHANDLE handle, bool value) 
 {
 	if (!isDllLoaded)
 		return;
-
-	wizmoSetOrigin(value);
+	wizmoSetAxisProcessingMode(handle, value);
 }
 
-char* FWIZMOPlugin::GetAppCode()
+bool FWIZMOPlugin::GetAxisProcessingMode(WIZMOHANDLE handle) 
+{
+	if (!isDllLoaded)
+		return false;
+	return wizmoGetAxisProcessingMode(handle);
+}
+
+void FWIZMOPlugin::SetVariableGainMode(WIZMOHANDLE handle, bool value) 
+{
+	if (!isDllLoaded)
+		return;
+	wizmoSetVariableGainMode(handle, value);
+}
+
+bool FWIZMOPlugin::GetVariableGainMode(WIZMOHANDLE handle) 
+{
+	if (!isDllLoaded)
+		return false;
+	return wizmoGetVariableGainMode(handle);
+}
+
+
+const char* FWIZMOPlugin::GetAppCode(WIZMOHANDLE handle)
 {
 	if (!isDllLoaded)
 		return NULL;
 
-	return (char*)wizmoGetAppCode();
+	return wizmoGetAppCode(handle);
 }
 
-int FWIZMOPlugin::GetState()
+const char* FWIZMOPlugin::GetWIZMOSerialNumber(WIZMOHANDLE handle)
 {
 	if (!isDllLoaded)
-		return -1;
+		return NULL;
 
-	return wizmoGetState();
+	return wizmoGetSerialNumber(handle);
+}
+
+const char* FWIZMOPlugin::GetVersion(WIZMOHANDLE handle)
+{
+	if (!isDllLoaded)
+		return NULL;
+
+	return wizmoGetVersion(handle);
+}
+
+bool FWIZMOPlugin::IsRunning(WIZMOHANDLE handle)
+{
+	if (!isDllLoaded)
+		return false;
+
+	return wizmoIsRunning(handle);
+}
+
+int FWIZMOPlugin::GetState(WIZMOHANDLE handle)
+{
+	if (!isDllLoaded)
+		return WIZMOHANDLE_ERROR;
+
+	return wizmoGetState(handle);
+}
+
+int FWIZMOPlugin::GetStatusEXT4(WIZMOHANDLE handle)
+{
+	if (!isDllLoaded)
+		return WIZMOHANDLE_ERROR;
+
+	return wizmoGetStatusEXT4(handle);
 }

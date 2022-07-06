@@ -10,6 +10,9 @@
 
 DECLARE_LOG_CATEGORY_EXTERN(WIZMOLog, Log, All);
 
+typedef int WIZMOHANDLE;
+#define WIZMOHANDLE_ERROR (-1)
+
 //Struct
 USTRUCT(BlueprintType)
 struct FWIZMOPacket
@@ -25,8 +28,8 @@ struct FWIZMOPacket
 	float axis6;
 
 	//Axis speed/accel controls
-	float speedAxis123;
-	float accelAxis123;
+	float speedAxis;
+	float accelAxis;
 	float speedAxis4;
 	float accelAxis4;
 
@@ -41,8 +44,8 @@ struct FWIZMOPacket
 	float rotationMotionRatio;
 	float gravityMotionRatio;
 
-	int commandCount;
-	int commandStride;
+	int commandSendCount;	//ëóêMÇ∑ÇÈÇ∆Ç´ÇÕ1Çì¸ÇÍÇÈ
+	int commandStride;	//égÇÌÇ»Ç¢
 	char command[256];
 };
 
@@ -64,13 +67,23 @@ public:
 
 public:
 	//Control
-	virtual void Open(const char* serialId) = 0;
-	virtual void Close() = 0;
+	virtual WIZMOHANDLE Open(const char* appCode, const char* serialAssign) = 0;
+	virtual void Close(WIZMOHANDLE handle) = 0;
+	
 	virtual void UpdateBackLog() = 0;
-	virtual void UpdateWIZMO(WIZMOPacket* data) = 0;
-
-	virtual void SetAxisProcesser(bool value) = 0;
-	virtual void SetOrigin(bool value) = 0;
-	virtual char* GetAppCode() = 0;
-	virtual int GetState() = 0;
+	virtual void UpdateWIZMO(WIZMOHANDLE handle, WIZMOPacket* data) = 0;
+	
+	virtual void SetOriginMode(WIZMOHANDLE handle, bool value) = 0;
+	virtual bool GetOriginMode(WIZMOHANDLE handle) = 0;
+	virtual void SetAxisProcessingMode(WIZMOHANDLE handle, bool value) = 0;
+	virtual bool GetAxisProcessingMode(WIZMOHANDLE handle) = 0;
+	virtual void SetVariableGainMode(WIZMOHANDLE handle, bool value) = 0;
+	virtual bool GetVariableGainMode(WIZMOHANDLE handle) = 0;
+	
+	virtual const char* GetAppCode(WIZMOHANDLE handle) = 0;
+	virtual const char* GetWIZMOSerialNumber(WIZMOHANDLE handle) = 0;
+	virtual const char* GetVersion(WIZMOHANDLE handle) = 0;
+	virtual bool IsRunning(WIZMOHANDLE handle) = 0;
+	virtual int GetState(WIZMOHANDLE handle) = 0;
+	virtual int GetStatusEXT4(WIZMOHANDLE handle) = 0;
 };

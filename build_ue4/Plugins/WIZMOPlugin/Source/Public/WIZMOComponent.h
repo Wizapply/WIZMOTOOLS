@@ -8,24 +8,32 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FWizmoSystemOnEvent, FString, message);
 
 //plugin State Define
-#define CanNotFindUsb 0
-#define CanNotFindSimvr 1
-#define CanNotCalibration 2
-#define TimeoutCalibration 3
-#define ShutDownActuator 4
-#define CanNotCertificate 5
-#define Initial 6
-#define Running 7
-#define StopActuator 8
-#define CalibrationRetry 9
+UENUM()
+enum class EWIZMOState : int32
+{
+	CanNotFindUsb = 0,
+	CanNotFindSimvr = 1,
+	CanNotCalibration = 2,
+	TimeoutCalibration = 3,
+	ShutDownActuator = 4,
+	CanNotCertificate = 5,
+	Initial = 6,
+	Running = 7,
+	StopActuator = 8,
+	CalibrationRetry = 9
+};
+
+typedef int WIZMOHANDLE;
+#define WIZMOHANDLE_ERROR (-1)
 
 UCLASS( ClassGroup=(WIZMO), meta=(BlueprintSpawnableComponent) )
 class UWIZMOComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-	void UpdateState();
+	WIZMOHANDLE wizmoHandle;
 	bool stopActuatorTrigger;
+	void UpdateState();
 
 public:
 	// Sets default values for this component's properties
@@ -47,12 +55,17 @@ public:
 		bool automaticallyOpenAtStart;
 
 	//AppCode
-	UPROPERTY(BlueprintReadWrite, Category = "AppCode", EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, Category = "Application Codes", EditAnywhere)
 		FString AppCode;
+	//AppCode
+	UPROPERTY(BlueprintReadWrite, Category = "Application Codes", EditAnywhere)
+		FString AssignNo;
 
 	//Status
-	UPROPERTY(BlueprintReadWrite, Category = "Status", EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, Category = "Options", EditAnywhere)
 		bool AxisProcessing;
+	UPROPERTY(BlueprintReadWrite, Category = "Options", EditAnywhere)
+		bool VariableGain;
 
 	//Rotation
 	UPROPERTY(BlueprintReadWrite, Category = "Rotation and G", EditAnywhere, meta = (ClampMin = "-1.0", ClampMax = "1.0", UIMin = "-1.0", UIMax = "1.0", EditCondition="AxisProcessing"))
@@ -83,16 +96,15 @@ public:
 		float Axis6Value;
 
 	//Configures
-	UPROPERTY(BlueprintReadWrite, Category = "Configures", EditAnywhere, meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
+	UPROPERTY(BlueprintReadWrite, Category = "Configures", EditAnywhere, meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0", EditCondition = "!VariableGain"))
 		float Speed;
-	UPROPERTY(BlueprintReadWrite, Category = "Configures", EditAnywhere, meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
+	UPROPERTY(BlueprintReadWrite, Category = "Configures", EditAnywhere, meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0", EditCondition = "!VariableGain"))
 		float Acceleration;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Configures", EditAnywhere, meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
 		float RotationMotionRatio;
 	UPROPERTY(BlueprintReadWrite, Category =" Configures", EditAnywhere, meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
 		float GravityMotionRatio;
-
 	UPROPERTY(BlueprintReadWrite, Category = "Configures", EditAnywhere)
 		bool isOrigined;
 
@@ -105,5 +117,7 @@ public:
 		void CloseWIZMO();
 
 	UFUNCTION(BlueprintCallable, Category = "WIZMOController")
-		int GetState();
+		EWIZMOState GetState();
+	UFUNCTION(BlueprintCallable, Category = "WIZMOController")
+		bool IsRunning();
 };

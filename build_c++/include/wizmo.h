@@ -58,8 +58,8 @@ typedef struct _simvr_data_packet
 	float rotationMotionRatio;
 	float gravityMotionRatio;
 
-	int commandCount;
-	int commandStride; //コマンド毎のオフセットバイト数
+	int commandSendCount;	//送信するときは1を入れる
+	int commandStride;		//使わない
 	char command[256];
 
 } WIZMODataPacket;
@@ -87,7 +87,7 @@ WIZMODataPacket DefaultWIZMOPacket();
 
 struct Property;
 
-#define WIZMO_SDKVERSION "4.0"
+#define WIZMO_SDKVERSION "4.1"
 
 class WIZMOPORT WIZMO
 {
@@ -99,11 +99,11 @@ public:
 
 	//Initialize
 	/*!	@brief Open the WIZMO System
-		@param appCode : Appication Code(Not a serial number)
-		@return If successful, the return value is 0< */
-	int Open(const char* appCode);
+		@param appCode : Appication Code(Not a serial number)*/
+	void Open(const char* appCode);
+	void Open(const char* appCode, const char* assign);
 	/*!	@brief Close the WIZMO System */
-	int Close();
+	void Close();
 
 	//Write
 	/*!	@brief This function sets data to WIZMO. 
@@ -123,6 +123,9 @@ public:
 
 	void SetAxisProcessingMode(bool value);
 	bool GetAxisProcessingMode();
+
+	void SetVariableGainMode(bool value);
+	bool GetVariableGainMode();
 
 	const char* GetAppCode() const;
 	const char* GetWIZMOSerialNumber() const;

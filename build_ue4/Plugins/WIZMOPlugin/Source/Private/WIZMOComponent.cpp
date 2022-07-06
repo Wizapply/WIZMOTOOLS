@@ -20,6 +20,7 @@ UWIZMOComponent::UWIZMOComponent()
 	Acceleration = 0.5f;
 
 	AxisProcessing = true;
+	VariableGain = false;
 	Axis1Value = 0.5f;
 	Axis2Value = 0.5f;
 	Axis3Value = 0.5f;
@@ -33,6 +34,7 @@ UWIZMOComponent::UWIZMOComponent()
 	isOrigined = false;
 	isOpened = false;
 	automaticallyOpenAtStart = true;
+	wizmoHandle = WIZMOHANDLE_ERROR;
 }
 
 
@@ -66,8 +68,8 @@ void UWIZMOComponent::TickComponent( float DeltaTime, ELevelTick TickType, FActo
 	p.heave = Heave;
 	p.sway = Sway;
 	p.surge = Surge;
-	p.speedAxis123 = Speed;
-	p.accelAxis123 = Acceleration;
+	p.speedAxis = Speed;
+	p.accelAxis = Acceleration;
 	p.speedAxis4 = Speed;		//This parameter is obsolete.
 	p.accelAxis4 = Acceleration;	//This parameter is obsolete.
 
@@ -82,56 +84,56 @@ void UWIZMOComponent::TickComponent( float DeltaTime, ELevelTick TickType, FActo
 
 	p.rotationMotionRatio = RotationMotionRatio;
 	p.gravityMotionRatio = GravityMotionRatio;
-
-	p.commandCount = 0;
+	p.commandSendCount = 0;
 
 	UpdateState();
 
-	IWIZMOPlugin::Get().SetAxisProcesser(AxisProcessing);
-	IWIZMOPlugin::Get().SetOrigin(isOrigined);
-	IWIZMOPlugin::Get().UpdateWIZMO(&p);
+	IWIZMOPlugin::Get().SetAxisProcessingMode(wizmoHandle, AxisProcessing);
+	IWIZMOPlugin::Get().SetOriginMode(wizmoHandle, isOrigined);
+	IWIZMOPlugin::Get().SetVariableGainMode(wizmoHandle, VariableGain);
+	IWIZMOPlugin::Get().UpdateWIZMO(wizmoHandle, &p);
 
 	IWIZMOPlugin::Get().UpdateBackLog();
 }
 
 void UWIZMOComponent::UpdateState()
 {
-	int state = IWIZMOPlugin::Get().GetState();
+	EWIZMOState state = (EWIZMOState)IWIZMOPlugin::Get().GetState(wizmoHandle);
 	// Error if less than Initial
-	if (state >= 0 && state <= Initial)
+	if (state >= EWIZMOState::CanNotFindUsb && state <= EWIZMOState::Initial)
 	{
 		FString output = "";
 		switch (state)
 		{
-		case Initial:
+		case EWIZMOState::Initial:
 			output = "Initialize";
 			break;
-		case CanNotFindUsb:
+		case EWIZMOState::CanNotFindUsb:
 			output = "MachineNotDetected";
 			break;
-		case CanNotFindSimvr:
+		case EWIZMOState::CanNotFindSimvr:
 			output = "InaccessibleToTheMachine";
 			break;
-		case CanNotCalibration:
+		case EWIZMOState::CanNotCalibration:
 			output = "ZeroReturnFailure";
 			break;
-		case TimeoutCalibration:
+		case EWIZMOState::TimeoutCalibration:
 			output = "ErrorReturningToZero";
 			break;
-		case ShutDownActuator:
+		case EWIZMOState::ShutDownActuator:
 			output = "ShutDown";
 			break;
-		case CanNotCertificate:
+		case EWIZMOState::CanNotCertificate:
 			output = "AuthenticationFailure";
 			break;
-		case CalibrationRetry:
+		case EWIZMOState::CalibrationRetry:
 			output = "InternalDisconnectionError";
 			break;
 		}
 		OnSystemEventCall.Broadcast(output);
 		CloseWIZMO();
 	}
-	if (state == StopActuator)
+	if (state == EWIZMOState::StopActuator)
 	{
 		if (!stopActuatorTrigger)
 		{
@@ -143,23 +145,35 @@ void UWIZMOComponent::UpdateState()
 
 void UWIZMOComponent::OpenWIZMO()
 {
-	if(!isOpened) {
-		IWIZMOPlugin::Get().Open(TCHAR_TO_UTF8(*AppCode));
+	if (isOpened)
+		return;
+
+	wizmoHandle = IWIZMOPlugin::Get().Open(TCHAR_TO_UTF8(*AppCode), TCHAR_TO_UTF8(*AssignNo));
+	if(wizmoHandle >= 0) {
 		isOpened = true;
 		stopActuatorTrigger = false;
+
+		IWIZMOPlugin::Get().SetAxisProcessingMode(wizmoHandle, AxisProcessing);
+		IWIZMOPlugin::Get().SetOriginMode(wizmoHandle, isOrigined);
+		IWIZMOPlugin::Get().SetVariableGainMode(wizmoHandle, VariableGain);
 	}
 }
 
 void UWIZMOComponent::CloseWIZMO()
 {
 	if(isOpened) {
-		IWIZMOPlugin::Get().Close();
+		IWIZMOPlugin::Get().Close(wizmoHandle);
 		IWIZMOPlugin::Get().UpdateBackLog();
 		isOpened = false;
 	}
 }
 
-int UWIZMOComponent::GetState()
+EWIZMOState UWIZMOComponent::GetState()
 {
-	return IWIZMOPlugin::Get().GetState();
+	return (EWIZMOState)IWIZMOPlugin::Get().GetState(wizmoHandle);
+}
+
+bool UWIZMOComponent::IsRunning()
+{
+	return IWIZMOPlugin::Get().IsRunning(wizmoHandle);
 }
