@@ -87,7 +87,7 @@ WIZMODataPacket DefaultWIZMOPacket();
 
 struct Property;
 
-#define WIZMO_SDKVERSION "4.1"
+#define WIZMO_SDKVERSION "4.2"
 
 class WIZMOPORT WIZMO
 {
