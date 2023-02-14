@@ -86,7 +86,7 @@ class wizmo():
         self.simplePacket = wizmoPacket()
         if self.verbose: print ("LOADED WIZMO DLL.")
 
-    def starter(self, appCode):
+    def starter(self, appCode:str):
         if self.wizmoIsOpen == True:
             return
 
@@ -134,7 +134,7 @@ class wizmo():
     def IsRunning(self):
         return self.wizmolib.wizmoGetState() == wizmoStatus.Running
 
-    def simplePoseUpdate(self, roll, pitch, yaw, heave, sway, surge):
+    def simplePoseUpdate(self, roll:float, pitch:float, yaw:float, heave:float, sway:float, surge:float):
         if self.wizmoIsOpen == False:
             return
 
@@ -146,7 +146,7 @@ class wizmo():
         self.simplePacket.surge = surge
         self.wizmolib.wizmoWrite(byref(self.simplePacket))
 
-    def simplePoseUpdateTuple(self, value):
+    def simplePoseUpdateTuple(self, value:tuple):
         if self.wizmoIsOpen == False:
             return
 
@@ -161,7 +161,7 @@ class wizmo():
         self.simplePacket.surge = value[5]
         self.wizmolib.wizmoWrite(byref(self.simplePacket))
 
-    def simpleMotionRatioUpdate(self, rotation, gravity):
+    def simpleMotionRatioUpdate(self, rotation:float, gravity:float):
         if self.wizmoIsOpen == False:
             return
 
@@ -169,7 +169,7 @@ class wizmo():
         self.simplePacket.gravityMotionRatio = gravity
         self.wizmolib.wizmoWrite(byref(self.simplePacket))
 
-    def simpleMotionPowerUpdate(self, accel, speed):
+    def simpleMotionPowerUpdate(self, accel:float, speed:float):
         if self.wizmoIsOpen == False:
             return
 
@@ -177,19 +177,19 @@ class wizmo():
         self.simplePacket.speedAxis123 = speed
         self.wizmolib.wizmoWrite(byref(self.simplePacket))
 
-    def packetUpdate(self, packet):
+    def packetUpdate(self, packet:wizmoPacket):
         if self.wizmoIsOpen == False:
             return
 
         self.wizmolib.wizmoWrite(byref(packet))
 
-    def setOriginMode(self, value):
+    def setOriginMode(self, value:bool):
         self.wizmolib.wizmoSetOriginMode(value)
 
-    def setAxisProcessingMode(self, value):
+    def setAxisProcessingMode(self, value:bool):
         self.wizmolib.wizmoSetAxisProcessingMode(value)
 
-    def setVariableGainMode(self, value):
+    def setVariableGainMode(self, value:bool):
         self.wizmolib.wizmoSetVariableGainMode(value)
 
     def getOriginMode(self):
