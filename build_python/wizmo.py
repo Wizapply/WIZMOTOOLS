@@ -4,6 +4,9 @@ from ctypes import *
 import time, platform
 from enum import IntEnum
 
+#define
+WIZMO_HANDLE_ERROR = -1
+
 # Status Define
 class wizmoStatus(IntEnum):
     CanNotFindUsb = 0
@@ -81,36 +84,57 @@ class wizmo():
                 libloadpath = './libwizmo32.so'
         
         self.wizmolib = cdll.LoadLibrary(libloadpath)
-        self.wizmoIsOpen = False
         self.verbose = verbose
         self.simplePacket = wizmoPacket()
+        self.wizmoHandle = WIZMO_HANDLE_ERROR
+
+        self.wizmolib.wizmoGetBackLog.restype = c_int
+        self.wizmolib.wizmoGetBackLog.argtypes = (c_char_p, c_int)
+        self.wizmolib.wizmoWrite.argtypes = (c_int, POINTER(wizmoPacket))
         if self.verbose: print ("LOADED WIZMO DLL.")
 
     def starter(self, appCode:str):
-        if self.wizmoIsOpen == True:
-            return
+        if self.wizmoHandle >= 0:
+            if self.verbose: print("WIZMO IS ALREADY OPEN.")
+            return WIZMO_HANDLE_ERROR
 
-        if self.wizmolib.wizmoOpen(appCode.encode()) == 0:
+        whandle = int(self.wizmolib.wizmoOpen(appCode.encode()))
+        if whandle < 0:
+            if self.verbose: print("WIZMO OPEN ERROR!")
+            self.wizmoHandle = WIZMO_HANDLE_ERROR
+        else:
             if self.verbose: print ("STARTED WIZMO.")
             time.sleep(1) #wait
-            self.wizmoIsOpen = True
-        else:
+        self.wizmoHandle = whandle
+        return self.wizmoHandle
+
+    def starterSerialAssign(self, appCode:str, assign:str):
+        if self.wizmoHandle >= 0:
+            if self.verbose: print("WIZMO IS ALREADY OPEN.")
+            return WIZMO_HANDLE_ERROR
+
+        whandle = int(self.wizmolib.wizmoOpenSerialAssign(appCode.encode(), assign.encode()))
+        if whandle < 0:
             if self.verbose: print("WIZMO OPEN ERROR!")
+            self.wizmoHandle = WIZMO_HANDLE_ERROR
+        else:
+            if self.verbose: print ("STARTED WIZMO.")
+            time.sleep(1) #wait
+        self.wizmoHandle = whandle
+        return self.wizmoHandle
 
     def close(self):
-        if self.wizmoIsOpen == False:
+        if self.wizmoHandle == WIZMO_HANDLE_ERROR:
+            if self.verbose: print("WIZMO IS NOT OPEN.")
             return
     
-        self.wizmolib.wizmoClose()
-        self.wizmoIsOpen = False
+        self.wizmolib.wizmoClose(self.wizmoHandle)
+        self.wizmoHandle = WIZMO_HANDLE_ERROR
 
     def updateBackLog(self):
         buf_res = ''
         size = self.wizmolib.wizmoBackLogDataAvailable();
         if(size > 0) :
-            self.wizmolib.wizmoGetBackLog.restype = c_int
-            self.wizmolib.wizmoGetBackLog.argtypes = (c_char_p, c_int)
-        
             p = create_string_buffer(size)
             iRef = self.wizmolib.wizmoGetBackLog(p, size)
             if iRef > 0:
@@ -121,7 +145,7 @@ class wizmo():
         return buf_res
 
     def updateState(self):
-        stateNo = self.wizmolib.wizmoGetState()
+        stateNo = self.wizmolib.wizmoGetState(self.wizmoHandle)
 
         #State OK
         if stateNo <= wizmoStatus.Initial:
@@ -129,13 +153,13 @@ class wizmo():
         return True
 
     def GetStatus(self):
-        return self.wizmolib.wizmoGetState()
+        return self.wizmolib.wizmoGetState(self.wizmoHandle)
 
     def IsRunning(self):
-        return self.wizmolib.wizmoGetState() == wizmoStatus.Running
+        return self.wizmolib.wizmoGetState(self.wizmoHandle) == wizmoStatus.Running
 
     def simplePoseUpdate(self, roll:float, pitch:float, yaw:float, heave:float, sway:float, surge:float):
-        if self.wizmoIsOpen == False:
+        if self.wizmoHandle == WIZMO_HANDLE_ERROR:
             return
 
         self.simplePacket.roll = roll
@@ -144,13 +168,14 @@ class wizmo():
         self.simplePacket.heave = heave
         self.simplePacket.sway = sway
         self.simplePacket.surge = surge
-        self.wizmolib.wizmoWrite(byref(self.simplePacket))
+        self.wizmolib.wizmoWrite(self.wizmoHandle, pointer(self.simplePacket))
 
     def simplePoseUpdateTuple(self, value:tuple):
-        if self.wizmoIsOpen == False:
+        if self.wizmoHandle == WIZMO_HANDLE_ERROR:
             return
 
         if len(value) < 6:
+            if self.verbose: print("ERROR TUPLE FORMAT.")
             return
 
         self.simplePacket.roll = value[0]
@@ -159,44 +184,44 @@ class wizmo():
         self.simplePacket.heave = value[3]
         self.simplePacket.sway = value[4]
         self.simplePacket.surge = value[5]
-        self.wizmolib.wizmoWrite(byref(self.simplePacket))
+        self.wizmolib.wizmoWrite(self.wizmoHandle, pointer(self.simplePacket))
 
     def simpleMotionRatioUpdate(self, rotation:float, gravity:float):
-        if self.wizmoIsOpen == False:
+        if self.wizmoHandle == WIZMO_HANDLE_ERROR:
             return
 
         self.simplePacket.rotationMotionRatio = rotation
         self.simplePacket.gravityMotionRatio = gravity
-        self.wizmolib.wizmoWrite(byref(self.simplePacket))
+        self.wizmolib.wizmoWrite(self.wizmoHandle, pointer(self.simplePacket))
 
     def simpleMotionPowerUpdate(self, accel:float, speed:float):
-        if self.wizmoIsOpen == False:
+        if self.wizmoHandle == WIZMO_HANDLE_ERROR:
             return
 
         self.simplePacket.accelAxis123 = accel
         self.simplePacket.speedAxis123 = speed
-        self.wizmolib.wizmoWrite(byref(self.simplePacket))
+        self.wizmolib.wizmoWrite(self.wizmoHandle, pointer(self.simplePacket))
 
     def packetUpdate(self, packet:wizmoPacket):
-        if self.wizmoIsOpen == False:
+        if self.wizmoHandle == WIZMO_HANDLE_ERROR:
             return
 
-        self.wizmolib.wizmoWrite(byref(packet))
+        self.wizmolib.wizmoWrite(self.wizmoHandle, pointer(packet))
 
     def setOriginMode(self, value:bool):
-        self.wizmolib.wizmoSetOriginMode(value)
+        self.wizmolib.wizmoSetOriginMode(self.wizmoHandle, value)
 
     def setAxisProcessingMode(self, value:bool):
-        self.wizmolib.wizmoSetAxisProcessingMode(value)
+        self.wizmolib.wizmoSetAxisProcessingMode(self.wizmoHandle, value)
 
     def setVariableGainMode(self, value:bool):
-        self.wizmolib.wizmoSetVariableGainMode(value)
+        self.wizmolib.wizmoSetVariableGainMode(self.wizmoHandle, value)
 
     def getOriginMode(self):
-        return self.wizmolib.wizmoGetOriginMode()
+        return self.wizmolib.wizmoGetOriginMode(self.wizmoHandle)
 
     def getAxisProcessingMode(self):
-        return self.wizmolib.wizmoGetAxisProcessingMode()
+        return self.wizmolib.wizmoGetAxisProcessingMode(self.wizmoHandle)
 
     def getVariableGainMode(self):
-        return self.wizmolib.wizmoGetVariableGainMode()
+        return self.wizmolib.wizmoGetVariableGainMode(self.wizmoHandle)
