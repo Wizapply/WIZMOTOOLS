@@ -24,7 +24,7 @@ r_thumb_stick_pos = (0.0, 0.0)
 
 wm.simpleMotionPowerUpdate(0.5,0.66)
 
-while wm.updateState():
+while wm.isRunning():
     events = XInput.get_events()
     for event in events:
         if event.user_index == 0:
@@ -41,10 +41,10 @@ while wm.updateState():
                     print('    RIGHT THUMB STICK' + str(r_thumb_stick_pos))
     #update wizmo
     wm.simplePoseUpdate(l_thumb_stick_pos[0],-l_thumb_stick_pos[1],0.0,0.0,0.0,0.0)
-    wm.updateBackLog()
+    wm.getBackLog(True)
     time.sleep(0.1) #100ms
 
 wm.close()
-wm.updateBackLog()
+wm.getBackLog(True)
 
 print('-------- FINISH WIZMO-TOOLS --------')

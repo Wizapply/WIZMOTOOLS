@@ -19,7 +19,9 @@ WIZMOTOOLSは、WIZAPPLYのサポートが認定された多軸モーション�
 
 ## フォルダ構成
 * `/build_c++` : C++(VisualStudio, CMAKE)で開発可能なファイル
+* `/build_csharp` : c#で開発可能なcsファイル・プロジェクトファイル
 * `/build_python` : Pythonで開発可能なpyファイル
+* `/build_rust` : Rustで開発可能なrsファイル・プロジェクトファイル
 * `/build_unity` : Unity2019以降で開発可能なUnityPackageファイル
 * `/build_ue4` : UnrealEngine4で開発可能なプラグイン及びプロジェクト
 * `/cad_datas` : ハードウェア・筐体CAD情報

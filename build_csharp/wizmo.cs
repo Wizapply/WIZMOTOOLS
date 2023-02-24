@@ -76,46 +76,44 @@ namespace wizmo
 
 		#region WIZMO DLL IMPORTER
 		[DllImport("wizmo", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-		static extern int wizmoOpen(string serialNo);
+		static extern Int32 wizmoOpen(string serialNo);
 		[DllImport("wizmo", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-		static extern int wizmoOpenSerialAssign(string appCode, string assign);
+		static extern Int32 wizmoOpenSerialAssign(string appCode, string assign);
 		[DllImport("wizmo", CallingConvention = CallingConvention.Cdecl)]
-		static extern int wizmoClose(int handle);
+		static extern Int32 wizmoClose(Int32 handle);
 		[DllImport("wizmo", CallingConvention = CallingConvention.Cdecl)]
-		static extern int wizmoGetState(int handle);
+		static extern Int32 wizmoGetState(Int32 handle);
 		[DllImport("wizmo", CallingConvention = CallingConvention.Cdecl)]
-		static extern void wizmoWrite(int handle, wizmoPacket packet);
+		static extern void wizmoWrite(Int32 handle, wizmoPacket packet);
 		[DllImport("wizmo", CallingConvention = CallingConvention.Cdecl)]
-		static extern void wizmoSetAxisProcessingMode(int handle, bool flag);
+		static extern void wizmoSetAxisProcessingMode(Int32 handle, Int32 flag);
 		[DllImport("wizmo", CallingConvention = CallingConvention.Cdecl)]
-		static extern void wizmoSetVariableGainMode(int handle, bool flag);
+		static extern void wizmoSetVariableGainMode(Int32 handle, Int32 flag);
 		[DllImport("wizmo", CallingConvention = CallingConvention.Cdecl)]
-		static extern void wizmoSetOriginMode(int handle, bool flag);
-		[DllImport("wizmo", CallingConvention = CallingConvention.Cdecl)]
-		[return: MarshalAs(UnmanagedType.U1)]
-		static extern bool wizmoGetOriginMode(int handle);
+		static extern void wizmoSetOriginMode(Int32 handle, Int32 flag);
 		[DllImport("wizmo", CallingConvention = CallingConvention.Cdecl)]
 		[return: MarshalAs(UnmanagedType.U1)]
-		static extern bool wizmoGetAxisProcessingMode(int handle);
+		static extern Int32 wizmoGetOriginMode(Int32 handle);
 		[DllImport("wizmo", CallingConvention = CallingConvention.Cdecl)]
 		[return: MarshalAs(UnmanagedType.U1)]
-		static extern bool wizmoGetVariableGainMode(int handle);
-		[DllImport("wizmo", CallingConvention = CallingConvention.Cdecl)]
-		static extern System.IntPtr wizmoGetAppCode(int handle);
-		[DllImport("wizmo", CallingConvention = CallingConvention.Cdecl)]
-		static extern int wizmoGetStatusEXT4(int handle);
-		[DllImport("wizmo", CallingConvention = CallingConvention.Cdecl)]
-		static extern IntPtr wizmoGetVersion(int handle);
+		static extern Int32 wizmoGetAxisProcessingMode(Int32 handle);
 		[DllImport("wizmo", CallingConvention = CallingConvention.Cdecl)]
 		[return: MarshalAs(UnmanagedType.U1)]
-		static extern bool wizmoIsRunning(int handle);
+		static extern Int32 wizmoGetVariableGainMode(Int32 handle);
+		[DllImport("wizmo", CallingConvention = CallingConvention.Cdecl)]
+		static extern System.IntPtr wizmoGetAppCode(Int32 handle);
+		[DllImport("wizmo", CallingConvention = CallingConvention.Cdecl)]
+		static extern Int32 wizmoGetStatusEXT4(Int32 handle);
+		[DllImport("wizmo", CallingConvention = CallingConvention.Cdecl)]
+		static extern System.IntPtr wizmoGetVersion(Int32 handle);
+		[DllImport("wizmo", CallingConvention = CallingConvention.Cdecl)]
+		[return: MarshalAs(UnmanagedType.U1)]
+		static extern Int32 wizmoIsRunning(Int32 handle);
 
 		[DllImport("wizmo", CallingConvention = CallingConvention.Cdecl)]
-		static extern int wizmoGetBackLog(byte[] str, int str_size);
+		static extern Int32 wizmoGetBackLog(byte[] str, Int32 str_size);
 		[DllImport("wizmo", CallingConvention = CallingConvention.Cdecl)]
-		static extern int wizmoBackLogDataAvailable();
-		[DllImport("wizmo", CallingConvention = CallingConvention.Cdecl)]
-		static extern uint wizmoGetBackLogSize();
+		static extern Int32 wizmoBackLogDataAvailable();
 		#endregion
 
 		static string? wizmoGetAppCadeString(int handle)
@@ -216,16 +214,6 @@ namespace wizmo
 			return resultString;
 		}
 
-		public bool UpdateState()
-		{
-			var stateNo = (wizmoState)wizmoGetState(g_wizmoHandle);
-
-			if (stateNo <= wizmoState.Initial)
-				return false;
-
-			return true;
-		}
-
 		public int GetStatus()
 		{
 			return (int)wizmoGetState(g_wizmoHandle);
@@ -233,7 +221,7 @@ namespace wizmo
 
 		public bool IsRunning()
 		{
-			return (wizmoState)wizmoGetState(g_wizmoHandle) == wizmoState.Running;
+			return wizmoIsRunning(g_wizmoHandle) != 0;
 		}
 
 		public void SimplePoseUpdate(float roll, float pitch, float yaw, float heave, float sway, float surge)
@@ -279,28 +267,28 @@ namespace wizmo
 
 		public void SetOriginMode(bool value)
 		{
-			wizmoSetOriginMode(g_wizmoHandle, value);
+			wizmoSetOriginMode(g_wizmoHandle, Convert.ToInt32(value));
 		}
 		public void SetAxisProcessingMode(bool value)
 		{
-			wizmoSetAxisProcessingMode(g_wizmoHandle, value);
+			wizmoSetAxisProcessingMode(g_wizmoHandle, Convert.ToInt32(value));
 		}
 		public void SetVariableGainMode(bool value)
 		{
-			wizmoSetVariableGainMode(g_wizmoHandle, value);
+			wizmoSetVariableGainMode(g_wizmoHandle, Convert.ToInt32(value));
 		}
 
 		public bool GetOriginMode()
 		{
-			return wizmoGetOriginMode(g_wizmoHandle);
+			return wizmoGetOriginMode(g_wizmoHandle) != 0;
 		}
 		public bool GetAxisProcessingMode()
 		{
-			return wizmoGetAxisProcessingMode(g_wizmoHandle);
+			return wizmoGetAxisProcessingMode(g_wizmoHandle) != 0;
 		}
 		public bool GetVariableGainMode()
 		{
-			return wizmoGetVariableGainMode(g_wizmoHandle);
+			return wizmoGetVariableGainMode(g_wizmoHandle) != 0;
 		}
 	}
 }

@@ -12,7 +12,7 @@ class WIZMOTest
         wm.Starter("");
         wm.SetAxisProcessingMode(true);
 
-        while (wm.UpdateState())
+        while (wm.IsRunning())
         {
             wm.SimplePoseUpdate(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
             wm.UpdateBackLog();

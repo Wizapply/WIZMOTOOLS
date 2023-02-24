@@ -29,7 +29,7 @@ namespace WIZMOSDK {
 	enum class State
 	{
 		CanNotFindUsb = 0,
-		CanNotFindSimvr,
+		CanNotFindWizmo,
 		CanNotCalibration,
 		TimeoutCalibration,
 		ShutDownActuator,

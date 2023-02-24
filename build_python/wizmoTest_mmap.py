@@ -47,7 +47,7 @@ wm.starter('')
 
 print("This program can change ROLL, PITCH, YAW of wizmo from SharedMemory\n")
 
-while wm.updateState():
+while wm.isRunning():
     rolldata = 0.0
     pitchdata = 0.0
     heavedata = 0.0
@@ -64,10 +64,10 @@ while wm.updateState():
         break
     
     wm.simplePoseUpdate(rolldata, pitchdata, 0.0, heavedata,0.0,0.0)
-    wm.updateBackLog()
+    wm.getBackLog(True)
     time.sleep(0.1) #100ms
 
 wm.close()
-wm.updateBackLog()
+wm.getBackLog(True)
 
 print('-------- FINISH WIZMO-TOOLS --------')

@@ -10,7 +10,7 @@ WIZMO_HANDLE_ERROR = -1
 # Status Define
 class wizmoStatus(IntEnum):
     CanNotFindUsb = 0
-    CanNotFindwizmo = 1
+    CanNotFindWizmo = 1
     CanNotCalibration = 2
     TimeoutCalibration = 3
     ShutDownActuator = 4
@@ -69,8 +69,10 @@ class wizmoPacket(Structure):
 
 # Main Class
 class wizmo():
+    
+    m_wizmolib = None
 
-    def __init__(self, verbose=False):
+    def __init__(self, verbose:bool=False):
         libloadpath = ''
         if platform.system() == 'Windows':
             if platform.architecture()[0] == '64bit':
@@ -83,7 +85,10 @@ class wizmo():
             else:
                 libloadpath = './libwizmo32.so'
         
-        self.wizmolib = cdll.LoadLibrary(libloadpath)
+        if wizmo.m_wizmolib == None:
+            wizmo.m_wizmolib = cdll.LoadLibrary(libloadpath)
+
+        self.wizmolib = wizmo.m_wizmolib
         self.verbose = verbose
         self.simplePacket = wizmoPacket()
         self.wizmoHandle = WIZMO_HANDLE_ERROR
@@ -92,6 +97,21 @@ class wizmo():
         self.wizmolib.wizmoGetBackLog.argtypes = (c_char_p, c_int)
         self.wizmolib.wizmoWrite.argtypes = (c_int, POINTER(wizmoPacket))
         if self.verbose: print ("LOADED WIZMO DLL.")
+
+    @staticmethod
+    def getBackLog(printing:bool=False):
+        buf_res = ''
+        size = wizmo.m_wizmolib.wizmoBackLogDataAvailable();
+        if(size > 0) :
+            p = create_string_buffer(size)
+            iRef = wizmo.m_wizmolib.wizmoGetBackLog(p, size)
+            if iRef > 0:
+                bufferString = p.value.decode()
+                buf_res += bufferString.rstrip("\n")
+
+        if printing and buf_res != '': print(buf_res)
+
+        return buf_res
 
     def starter(self, appCode:str):
         if self.wizmoHandle >= 0:
@@ -131,32 +151,11 @@ class wizmo():
         self.wizmolib.wizmoClose(self.wizmoHandle)
         self.wizmoHandle = WIZMO_HANDLE_ERROR
 
-    def updateBackLog(self):
-        buf_res = ''
-        size = self.wizmolib.wizmoBackLogDataAvailable();
-        if(size > 0) :
-            p = create_string_buffer(size)
-            iRef = self.wizmolib.wizmoGetBackLog(p, size)
-            if iRef > 0:
-                bufferString = p.value.decode()
-                buf_res += bufferString.rstrip("\n")
-
-        if self.verbose and buf_res != '': print(buf_res)
-        return buf_res
-
-    def updateState(self):
-        stateNo = self.wizmolib.wizmoGetState(self.wizmoHandle)
-
-        #State OK
-        if stateNo <= wizmoStatus.Initial:
-            return False
-        return True
-
-    def GetStatus(self):
+    def getStatus(self):
         return self.wizmolib.wizmoGetState(self.wizmoHandle)
 
-    def IsRunning(self):
-        return self.wizmolib.wizmoGetState(self.wizmoHandle) == wizmoStatus.Running
+    def isRunning(self) -> bool:
+        return bool(self.wizmolib.wizmoIsRunning(self.wizmoHandle))
 
     def simplePoseUpdate(self, roll:float, pitch:float, yaw:float, heave:float, sway:float, surge:float):
         if self.wizmoHandle == WIZMO_HANDLE_ERROR:
