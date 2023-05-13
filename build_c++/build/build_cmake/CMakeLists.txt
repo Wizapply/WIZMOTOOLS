@@ -9,7 +9,7 @@ cmake_minimum_required(VERSION 3.2.0)
 # You can define multiple libraries, and CMake builds it for you.
 # Gradle automatically packages shared libraries with your APK.
 
-project (simvr_app)
+project (wizmo_app)
 
 set(CMAKE_CXX_FLAGS "-std=c++11 -Wall") #-m32
 set(CMAKE_CXX_FLAGS_DEBUG "-g3 -O0 -pg -fsigned-char")
@@ -29,6 +29,6 @@ add_executable(Main ./../../src/main.cpp)
 # build script, prebuilt third-party libraries, or system libraries.
 
 target_link_libraries(Main # Specifies the target library.
-                      simvr pthread)
+                      wizmo pthread)
 
 add_definitions(-DLINUX)
