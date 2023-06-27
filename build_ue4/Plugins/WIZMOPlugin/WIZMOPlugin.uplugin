@@ -1,7 +1,7 @@
 {
 	"FileVersion": 3,
 	"Version": 5,
-	"VersionName": "4.1",
+	"VersionName": "4.5",
 	"FriendlyName": "WIZMOTOOLS UE Plugin",
 	"Description": "WIZMOTOOLS Plugin for UnrealEngine.",
 	"Category": "MotionDevice",

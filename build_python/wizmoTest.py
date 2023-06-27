@@ -13,13 +13,13 @@ except FileNotFoundError:
 
 wm.starter('')
 
-while wm.isRunning():
+while wm.is_running():
 
-    wm.simplePoseUpdate(0.0,0.0,0.0,0.0,0.0,0.0)
-    wm.getBackLog(True)
+    wm.simple_pose_update(0.0,0.0,0.0,0.0,0.0,0.0)
+    wm.get_backlog(True)
     time.sleep(0.1) #100ms
 
 wm.close()
-wm.getBackLog(True)
+wm.get_backlog(True)
 
 print('-------- FINISH WIZMO-TOOLS --------')

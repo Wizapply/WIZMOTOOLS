@@ -22,9 +22,9 @@ XInput.set_deadzone(XInput.DEADZONE_TRIGGER,10)
 l_thumb_stick_pos = (0.0, 0.0)
 r_thumb_stick_pos = (0.0, 0.0)
 
-wm.simpleMotionPowerUpdate(0.5,0.66)
+wm.simple_motion_power_update(0.5,0.66)
 
-while wm.isRunning():
+while wm.is_running():
     events = XInput.get_events()
     for event in events:
         if event.user_index == 0:
@@ -40,11 +40,11 @@ while wm.isRunning():
                     r_thumb_stick_pos = (round(event.x,1), round(event.y,1))
                     print('    RIGHT THUMB STICK' + str(r_thumb_stick_pos))
     #update wizmo
-    wm.simplePoseUpdate(l_thumb_stick_pos[0],-l_thumb_stick_pos[1],0.0,0.0,0.0,0.0)
-    wm.getBackLog(True)
+    wm.simple_pose_update(l_thumb_stick_pos[0],-l_thumb_stick_pos[1],0.0,0.0,0.0,0.0)
+    wm.get_backlog(True)
     time.sleep(0.1) #100ms
 
 wm.close()
-wm.getBackLog(True)
+wm.get_backlog(True)
 
 print('-------- FINISH WIZMO-TOOLS --------')

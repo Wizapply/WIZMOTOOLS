@@ -26,6 +26,7 @@
 
 namespace WIZMOSDK {
 
+	//State List
 	enum class State
 	{
 		CanNotFindUsb = 0,
@@ -39,6 +40,15 @@ namespace WIZMOSDK {
 		Running,
 		StopActuator,
 		CalibrationRetry,
+	};
+
+	//Deivce List
+	enum class WIZMODevice {
+		NONE = 0,
+		SIMVR4DOF,
+		SIMVR6DOF,
+		SIMVR6DOF_MASSIVE,
+		ANTSEAT,
 	};
 
 }

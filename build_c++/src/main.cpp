@@ -39,37 +39,6 @@
 WIZMOSDK::WIZMO* g_pWIZMOSystem = NULL;
 
 /* -- Main -------------------------------------------------------------- */
-WIZMOSDK::WIZMODataPacket DefaultPacket()
-{
-	WIZMOSDK::WIZMODataPacket packet = {};
-	packet.axis1 = 0.5f;
-	packet.axis2 = 0.5f;
-	packet.axis3 = 0.5f;
-	packet.axis4 = 0.5f;
-	packet.axis5 = 0.5f;
-	packet.axis6 = 0.5f;
-
-	//Axis speed/accel controls
-	packet.speedAxis = 0.8f;
-	packet.accelAxis = 0.5f;
-	packet.speedAxis4 = 0.8f;
-	packet.accelAxis4 = 0.5f;
-
-	//Axis Processing
-	packet.roll = 0.0f;
-	packet.pitch = 0.0f;
-	packet.yaw = 0.0f;
-	packet.heave = 0.0f;
-	packet.sway = 0.0f;
-	packet.surge = 0.0f;
-
-	packet.rotationMotionRatio = 1.0f;
-	packet.gravityMotionRatio = 0.0f;
-
-	packet.commandCount = 0;
-
-	return packet;
-}
 
 void simvrUpdateBackLog() {
 
@@ -101,7 +70,9 @@ int main(int argc, char *argv[])
 	g_pWIZMOSystem->SetOriginMode(false);
 	g_pWIZMOSystem->SetAxisProcessingMode(true);	//Axis mode
 
-	auto packet = DefaultPacket();
+	g_pWIZMOSystem->SetSpeedGainMode(WIZMOSDK::WIZMO::SPEEDGAIN_MODE_NORMAL);
+
+	auto packet = WIZMOSDK::DefaultWIZMOPacket();
 
 	std::cout << "This program can change ROLL, PITCH, YAW of the WIZMO. \nSpecification value [-1.0 to 1.0]. To exit, input [exit]." << std::endl;
 

@@ -28,10 +28,13 @@ struct FWIZMOPacket
 	float axis6;
 
 	//Axis speed/accel controls
-	float speedAxis;
-	float accelAxis;
-	float speedAxis4;
-	float accelAxis4;
+	float speed1_all;
+	float speed2;
+	float speed3;
+	float speed4;
+	float speed5;
+	float speed6;
+	float accel;
 
 	//Axis Processing
 	float roll;
@@ -45,7 +48,6 @@ struct FWIZMOPacket
 	float gravityMotionRatio;
 
 	int commandSendCount;	//ëóêMÇ∑ÇÈÇ∆Ç´ÇÕ1Çì¸ÇÍÇÈ
-	int commandStride;	//égÇÌÇ»Ç¢
 	char command[256];
 };
 
@@ -77,8 +79,8 @@ public:
 	virtual bool GetOriginMode(WIZMOHANDLE handle) = 0;
 	virtual void SetAxisProcessingMode(WIZMOHANDLE handle, bool value) = 0;
 	virtual bool GetAxisProcessingMode(WIZMOHANDLE handle) = 0;
-	virtual void SetVariableGainMode(WIZMOHANDLE handle, bool value) = 0;
-	virtual bool GetVariableGainMode(WIZMOHANDLE handle) = 0;
+	virtual void SetSpeedGainMode(WIZMOHANDLE handle, int value) = 0;
+	virtual int GetSpeedGainMode(WIZMOHANDLE handle) = 0;
 	
 	virtual const char* GetAppCode(WIZMOHANDLE handle) = 0;
 	virtual const char* GetWIZMOSerialNumber(WIZMOHANDLE handle) = 0;

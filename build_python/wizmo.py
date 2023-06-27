@@ -20,6 +20,11 @@ class wizmoStatus(IntEnum):
     StopActuator = 8
     CalibrationRetry = 9
 
+class wizmoSpeedGain(IntEnum):
+    Normal = 0
+    Variable = 1
+    Manual = 2
+
 # WIZMO Data Packet
 class wizmoPacket(Structure):  
     _fields_ = [  
@@ -29,10 +34,13 @@ class wizmoPacket(Structure):
             ("axis4", c_float),
             ("axis5", c_float),
             ("axis6", c_float),
-            ("speedAxis123", c_float),  
-            ("accelAxis123", c_float),
-            ("speedAxis4", c_float),  
-            ("accelAxis4", c_float),
+            ("speed1_all", c_float),
+            ("speed2", c_float),
+            ("speed3", c_float),
+            ("speed4", c_float),
+            ("speed5", c_float),
+            ("speed6", c_float),
+            ("accel", c_float),
             ("roll", c_float),  
             ("pitch", c_float),  
             ("yaw", c_float),
@@ -41,8 +49,7 @@ class wizmoPacket(Structure):
             ("surge", c_float),
             ("rotationMotionRatio", c_float),  
             ("gravityMotionRatio", c_float),  
-            ("commandCount", c_int),  
-            ("commandStride", c_int),
+            ("commandSendCount", c_int),  
             ("command", c_char*256)
             ]
   
@@ -53,10 +60,15 @@ class wizmoPacket(Structure):
         self.axis4 = 0.5
         self.axis5 = 0.5
         self.axis6 = 0.5
-        self.speedAxis123 = 0.66
-        self.accelAxis123 = 0.1
-        self.speedAxis4 = 0.0
-        self.accelAxis4 = 0.0
+
+        self.speed1_all = 0.667
+        self.speed2 = 0.667
+        self.speed3 = 0.667
+        self.speed4 = 0.667
+        self.speed5 = 0.667
+        self.speed6 = 0.667
+        self.accel = 0.5
+
         self.roll = 0.0
         self.pitch = 0.0
         self.yaw = 0.0
@@ -65,7 +77,7 @@ class wizmoPacket(Structure):
         self.surge = 0.0
         self.rotationMotionRatio = 1.0
         self.gravityMotionRatio = 1.0
-        self.commandCount = 0 
+        self.commandSendCount = 0 
 
 # Main Class
 class wizmo():
@@ -99,7 +111,7 @@ class wizmo():
         if self.verbose: print ("LOADED WIZMO DLL.")
 
     @staticmethod
-    def getBackLog(printing:bool=False):
+    def get_backlog(printing:bool=False):
         buf_res = ''
         size = wizmo.m_wizmolib.wizmoBackLogDataAvailable();
         if(size > 0) :
@@ -128,7 +140,7 @@ class wizmo():
         self.wizmoHandle = whandle
         return self.wizmoHandle
 
-    def starterSerialAssign(self, appCode:str, assign:str):
+    def starter_serialassign(self, appCode:str, assign:str):
         if self.wizmoHandle >= 0:
             if self.verbose: print("WIZMO IS ALREADY OPEN.")
             return WIZMO_HANDLE_ERROR
@@ -151,13 +163,13 @@ class wizmo():
         self.wizmolib.wizmoClose(self.wizmoHandle)
         self.wizmoHandle = WIZMO_HANDLE_ERROR
 
-    def getStatus(self):
+    def get_status(self):
         return self.wizmolib.wizmoGetState(self.wizmoHandle)
 
-    def isRunning(self) -> bool:
+    def is_running(self) -> bool:
         return bool(self.wizmolib.wizmoIsRunning(self.wizmoHandle))
 
-    def simplePoseUpdate(self, roll:float, pitch:float, yaw:float, heave:float, sway:float, surge:float):
+    def simple_pose_update(self, roll:float, pitch:float, yaw:float, heave:float, sway:float, surge:float):
         if self.wizmoHandle == WIZMO_HANDLE_ERROR:
             return
 
@@ -169,7 +181,7 @@ class wizmo():
         self.simplePacket.surge = surge
         self.wizmolib.wizmoWrite(self.wizmoHandle, pointer(self.simplePacket))
 
-    def simplePoseUpdateTuple(self, value:tuple):
+    def simple_pose_update_tuple(self, value:tuple):
         if self.wizmoHandle == WIZMO_HANDLE_ERROR:
             return
 
@@ -185,7 +197,7 @@ class wizmo():
         self.simplePacket.surge = value[5]
         self.wizmolib.wizmoWrite(self.wizmoHandle, pointer(self.simplePacket))
 
-    def simpleMotionRatioUpdate(self, rotation:float, gravity:float):
+    def simple_motion_ratio_update(self, rotation:float, gravity:float):
         if self.wizmoHandle == WIZMO_HANDLE_ERROR:
             return
 
@@ -193,7 +205,7 @@ class wizmo():
         self.simplePacket.gravityMotionRatio = gravity
         self.wizmolib.wizmoWrite(self.wizmoHandle, pointer(self.simplePacket))
 
-    def simpleMotionPowerUpdate(self, accel:float, speed:float):
+    def simple_motio_power_update(self, accel:float, speed:float):
         if self.wizmoHandle == WIZMO_HANDLE_ERROR:
             return
 
@@ -201,26 +213,26 @@ class wizmo():
         self.simplePacket.speedAxis123 = speed
         self.wizmolib.wizmoWrite(self.wizmoHandle, pointer(self.simplePacket))
 
-    def packetUpdate(self, packet:wizmoPacket):
+    def packet_update(self, packet:wizmoPacket):
         if self.wizmoHandle == WIZMO_HANDLE_ERROR:
             return
 
         self.wizmolib.wizmoWrite(self.wizmoHandle, pointer(packet))
 
-    def setOriginMode(self, value:bool):
-        self.wizmolib.wizmoSetOriginMode(self.wizmoHandle, value)
+    def origin_mode(self, value:bool=None):
+        if value==None:
+            return self.wizmolib.wizmoGetAxisProcessingMode(self.wizmoHandle)
+        else:
+            self.wizmolib.wizmoSetAxisProcessingMode(self.wizmoHandle, value)
+    
+    def axis_processing_mode(self, value:bool=None):
+        if value==None:
+            return self.wizmolib.wizmoGetOriginMode(self.wizmoHandle)
+        else:
+            self.wizmolib.wizmoSetOriginMode(self.wizmoHandle, value)
 
-    def setAxisProcessingMode(self, value:bool):
-        self.wizmolib.wizmoSetAxisProcessingMode(self.wizmoHandle, value)
-
-    def setVariableGainMode(self, value:bool):
-        self.wizmolib.wizmoSetVariableGainMode(self.wizmoHandle, value)
-
-    def getOriginMode(self):
-        return self.wizmolib.wizmoGetOriginMode(self.wizmoHandle)
-
-    def getAxisProcessingMode(self):
-        return self.wizmolib.wizmoGetAxisProcessingMode(self.wizmoHandle)
-
-    def getVariableGainMode(self):
-        return self.wizmolib.wizmoGetVariableGainMode(self.wizmoHandle)
+    def speed_gain_mode(self, value:wizmoSpeedGain=None):
+        if value==None:
+            return self.wizmolib.wizmoGetSpeedGainMode(self.wizmoHandle)
+        else:
+            self.wizmolib.wizmoSetSpeedGainMode(self.wizmoHandle, int(value))

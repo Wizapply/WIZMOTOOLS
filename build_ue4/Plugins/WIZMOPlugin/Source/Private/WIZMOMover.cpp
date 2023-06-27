@@ -254,7 +254,7 @@ void UWIZMOMover::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 
 float UWIZMOMover::ToRoundDown(float dValue, int iDigits)
 {
-	float dCoef = FMath::Pow(10, iDigits);
+	float dCoef = FMath::Pow(10.0f, iDigits);
 
 	return dValue > 0 ? FMath::FloorToFloat(dValue * dCoef) / dCoef :
 		FMath::CeilToFloat(dValue * dCoef) / dCoef;

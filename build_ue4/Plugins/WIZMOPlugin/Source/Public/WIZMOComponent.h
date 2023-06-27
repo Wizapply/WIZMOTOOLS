@@ -23,6 +23,15 @@ enum class EWIZMOState : int32
 	CalibrationRetry = 9
 };
 
+//plugin SpeedGain Define
+UENUM(BlueprintType)
+enum class EWIZMOSpeedGain : uint8
+{
+	Normal UMETA(DisplayName = "Normal"),
+	Variable UMETA(DisplayName = "Variable"),
+	Manual UMETA(DisplayName = "Manual"),
+};
+
 typedef int WIZMOHANDLE;
 #define WIZMOHANDLE_ERROR (-1)
 
@@ -65,7 +74,7 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "Options", EditAnywhere)
 		bool AxisProcessing;
 	UPROPERTY(BlueprintReadWrite, Category = "Options", EditAnywhere)
-		bool VariableGain;
+		EWIZMOSpeedGain SpeedGainMode;
 
 	//Rotation
 	UPROPERTY(BlueprintReadWrite, Category = "Rotation and G", EditAnywhere, meta = (ClampMin = "-1.0", ClampMax = "1.0", UIMin = "-1.0", UIMax = "1.0", EditCondition="AxisProcessing"))

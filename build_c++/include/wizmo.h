@@ -30,22 +30,17 @@ namespace WIZMOSDK {
 #ifndef __WIZMO_DATAPACKET__
 #define __WIZMO_DATAPACKET__
 
+const int WIZMODATA_AXIS_SIZE = 6;
+
 //! WIZMO Data packet
 typedef struct _simvr_data_packet
 {
 	//Axis position controls
-	float axis1;
-	float axis2;
-	float axis3;
-	float axis4;
-	float axis5;
-	float axis6;
+	float axis[WIZMODATA_AXIS_SIZE];
 
 	//Axis speed/accel controls
-	float speedAxis;
+	float speedAxis[WIZMODATA_AXIS_SIZE];
 	float accelAxis;
-	float speedAxis4;
-	float accelAxis4;
 
 	//Axis Processing
 	float roll;
@@ -58,13 +53,11 @@ typedef struct _simvr_data_packet
 	float rotationMotionRatio;
 	float gravityMotionRatio;
 
-	int commandSendCount;	//送信するときは1を入れる
-	int commandStride;		//使わない
-	char command[256];
+	int commandSendCount;	//送信回数するときは1以上を入れる
+	char command[256];		//文字列で
 
 } WIZMODataPacket;
 
-WIZMODataPacket DefaultWIZMOPacket();
 #endif /*__WIZMO_DATAPACKET__*/
 
 /////////// VARS AND DEFS ///////////
@@ -85,9 +78,12 @@ WIZMODataPacket DefaultWIZMOPacket();
 	#define WIZMOPORT
 #endif	/*LINUX*/
 
-struct Property;
+//Default Packet
+WIZMODataPacket WIZMOPORT DefaultWIZMOPacket();
 
-#define WIZMO_SDKVERSION "4.2"
+#define WIZMO_SDKVERSION "4.5"
+
+struct Property;
 
 class WIZMOPORT WIZMO
 {
@@ -124,13 +120,17 @@ public:
 	void SetAxisProcessingMode(bool value);
 	bool GetAxisProcessingMode();
 
-	void SetVariableGainMode(bool value);
-	bool GetVariableGainMode();
+	static const int SPEEDGAIN_MODE_NORMAL = 0;
+	static const int SPEEDGAIN_MODE_VARIABLE = 1;
+	static const int SPEEDGAIN_MODE_MANUAL = 2;
+	void SetSpeedGainMode(int speedGain_value);
+	int GetSpeedGainMode();
 
 	const char* GetAppCode() const;
 	const char* GetWIZMOSerialNumber() const;
 
 	int GetState();
+	int GetWIZMODevice();
 	const char* GetVersion() const;
 	bool IsRunning() const;
 
@@ -139,6 +139,7 @@ public:
 private:
 	void Update(WIZMODataPacket& packet);
 	void ThreadUpdate();
+	bool CalcToAxisPacket(WIZMODataPacket& packet);
 	void LogError();
 
 	void LANStart();

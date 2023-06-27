@@ -7,35 +7,37 @@ namespace wizmo
 	[StructLayout(LayoutKind.Sequential)]
 	public class wizmoPacket
 	{
-		//Axis position controls
-		public float axis1;
-		public float axis2;
-		public float axis3;
-		public float axis4;
-		public float axis5;
-		public float axis6;
+        //Axis position controls
+        public float axis1;
+        public float axis2;
+        public float axis3;
+        public float axis4;
+        public float axis5;
+        public float axis6;
 
-		//Axis speed/accel controls
-		public float speedAxis;
-		public float accelAxis;
-		public float speedAxis4;
-		public float accelAxis4;
+        //Axis speed/accel controls
+        public float speed1_all;
+        public float speed2;
+        public float speed3;
+        public float speed4;
+        public float speed5;
+        public float speed6;
+        public float accel;
 
-		//Axis Processing
-		public float roll;
-		public float pitch;
-		public float yaw;
-		public float heave;
-		public float sway;
-		public float surge;
+        //Axis Processing
+        public float roll;
+        public float pitch;
+        public float yaw;
+        public float heave;
+        public float sway;
+        public float surge;
 
-		public float rotationMotionRatio;
-		public float gravityMotionRatio;
+        public float rotationMotionRatio;
+        public float gravityMotionRatio;
 
-		public int commandSendCount;
-		public int commandStride; //使用しない
-		[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
-		public string? command;
+        public int commandSendCount;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
+        public string command;
 
 		public wizmoPacket()
 		{
@@ -46,11 +48,14 @@ namespace wizmo
 			axis5 = 0.5f;
 			axis6 = 0.5f;
 
-			//Axis speed/accel controls
-			speedAxis = 0.66f;
-			accelAxis = 0.5f;
-			speedAxis4 = 1.0f;
-			accelAxis4 = 1.0f;
+            //Axis speed/accel controls
+            speed1_all = 0.667f;
+            speed2 = 0.667f;
+            speed3 = 0.667f;
+            speed4 = 0.667f;
+            speed5 = 0.667f;
+            speed6 = 0.667f;
+            accel = 0.5f;
 
 			//Axis Processing
 			roll = 0.0f;
@@ -64,7 +69,6 @@ namespace wizmo
 			gravityMotionRatio = 0.8f;
 
 			commandSendCount = 0;
-			commandStride = 0;
 			command = "";
 		}
 	}
@@ -84,6 +88,8 @@ namespace wizmo
 		[DllImport("wizmo", CallingConvention = CallingConvention.Cdecl)]
 		static extern Int32 wizmoGetState(Int32 handle);
 		[DllImport("wizmo", CallingConvention = CallingConvention.Cdecl)]
+		static extern int wizmoGetDevice(int handle);
+        [DllImport("wizmo", CallingConvention = CallingConvention.Cdecl)]
 		static extern void wizmoWrite(Int32 handle, wizmoPacket packet);
 		[DllImport("wizmo", CallingConvention = CallingConvention.Cdecl)]
 		static extern void wizmoSetAxisProcessingMode(Int32 handle, Int32 flag);
@@ -243,8 +249,8 @@ namespace wizmo
 			if (!g_wizmoIsOpen)
 				return;
 
-			g_simplePacket.accelAxis = rotation;
-			g_simplePacket.speedAxis = gravity;
+			g_simplePacket.rotationMotionRatio = rotation;
+			g_simplePacket.gravityMotionRatio = gravity;
 			wizmoWrite(g_wizmoHandle, g_simplePacket);
 
 		}
@@ -253,8 +259,8 @@ namespace wizmo
 			if (!g_wizmoIsOpen)
 				return;
 
-			g_simplePacket.accelAxis = accel;
-			g_simplePacket.speedAxis = speed;
+			g_simplePacket.accel = accel;
+			g_simplePacket.speed1_all = speed;
 			wizmoWrite(g_wizmoHandle, g_simplePacket);
 		}
 		public void PacketUpdate(wizmoPacket packet)
@@ -289,6 +295,28 @@ namespace wizmo
 		public bool GetVariableGainMode()
 		{
 			return wizmoGetVariableGainMode(g_wizmoHandle) != 0;
+		}
+
+		public string GetDeviceName()
+		{
+			//wizmo_state.h -> WIZMODevice
+			string res = "NONE";
+			switch(wizmoGetDevice(g_wizmoHandle)){
+				case 1: res = "SIMVR4DOF";
+					break;
+				case 2: res = "SIMVR6DOF";
+					break;
+				case 3: res = "SIMVR6DOF_MASSIVE";
+					break;
+				case 4: res = "ANTSEAT";
+					break;
+				case 0:
+				default:
+					res = "NONE";
+					break;
+			}
+
+			return res;
 		}
 	}
 }

@@ -20,7 +20,7 @@ UWIZMOComponent::UWIZMOComponent()
 	Acceleration = 0.5f;
 
 	AxisProcessing = true;
-	VariableGain = false;
+	SpeedGainMode = EWIZMOSpeedGain::Normal;
 	Axis1Value = 0.5f;
 	Axis2Value = 0.5f;
 	Axis3Value = 0.5f;
@@ -68,10 +68,14 @@ void UWIZMOComponent::TickComponent( float DeltaTime, ELevelTick TickType, FActo
 	p.heave = Heave;
 	p.sway = Sway;
 	p.surge = Surge;
-	p.speedAxis = Speed;
-	p.accelAxis = Acceleration;
-	p.speedAxis4 = Speed;		//This parameter is obsolete.
-	p.accelAxis4 = Acceleration;	//This parameter is obsolete.
+
+	p.speed1_all= Speed;
+	p.speed2 = Speed;
+	p.speed3 = Speed;
+	p.speed4 = Speed;
+	p.speed5 = Speed;
+	p.speed6 = Speed;
+	p.accel = Acceleration;
 
 	if (!AxisProcessing) {
 		p.axis1 = Axis1Value;
@@ -90,7 +94,7 @@ void UWIZMOComponent::TickComponent( float DeltaTime, ELevelTick TickType, FActo
 
 	IWIZMOPlugin::Get().SetAxisProcessingMode(wizmoHandle, AxisProcessing);
 	IWIZMOPlugin::Get().SetOriginMode(wizmoHandle, isOrigined);
-	IWIZMOPlugin::Get().SetVariableGainMode(wizmoHandle, VariableGain);
+	IWIZMOPlugin::Get().SetSpeedGainMode(wizmoHandle, (int)SpeedGainMode);
 	IWIZMOPlugin::Get().UpdateWIZMO(wizmoHandle, &p);
 
 	IWIZMOPlugin::Get().UpdateBackLog();
@@ -155,7 +159,7 @@ void UWIZMOComponent::OpenWIZMO()
 
 		IWIZMOPlugin::Get().SetAxisProcessingMode(wizmoHandle, AxisProcessing);
 		IWIZMOPlugin::Get().SetOriginMode(wizmoHandle, isOrigined);
-		IWIZMOPlugin::Get().SetVariableGainMode(wizmoHandle, VariableGain);
+		IWIZMOPlugin::Get().SetSpeedGainMode(wizmoHandle, (int)SpeedGainMode);
 	}
 }
 

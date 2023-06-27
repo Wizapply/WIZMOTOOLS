@@ -21,10 +21,13 @@ pub struct WizmoPacket
 	pub axis6: f32,
 
 	//Axis speed/accel controls
-	pub speed_axis: f32,
-	pub accel_axis: f32,
-	pub speed_axis4: f32,
-	pub accel_axis4: f32,
+	pub speed1_all: f32,
+	pub speed2: f32,
+	pub speed3: f32,
+	pub speed4: f32,
+	pub speed5: f32,
+	pub speed6: f32,
+	pub accel: f32,
 
 	//Axis Processing
 	pub roll: f32,
@@ -38,7 +41,6 @@ pub struct WizmoPacket
 	pub gravity_motion_ratio: f32,
 
 	pub command_send_count: i32,
-	pub command_stride:i32,
 	pub command: [u8;256],
 }
 
@@ -66,11 +68,11 @@ extern {
 	fn wizmoGetState(handle:i32) -> i32;
 	fn wizmoWrite(handle:i32, pakcet:*const u8);	//packet
 	fn wizmoSetAxisProcessingMode(handle:i32, flag:i32);
-	fn wizmoSetVariableGainMode(handle:i32, flag:i32);
+	fn wizmoSetSpeedGainMode(handle:i32, flag:i32);
 	fn wizmoSetOriginMode(handle:i32, flag:i32);
 	fn wizmoGetOriginMode(handle:i32) -> i32;
 	fn wizmoGetAxisProcessingMode(handle:i32) -> i32;
-	fn wizmoGetVariableGainMode(handle:i32) -> i32;
+	fn wizmoGetSpeedGainMode(handle:i32) -> i32;
 	fn wizmoGetAppCode(handle:i32) -> *const u8;
 	fn wizmoGetVersion(handle:i32) -> *const u8;
 	fn wizmoGetStatusEXT4(handle:i32) -> i32;
@@ -149,8 +151,8 @@ pub fn set_axis_processing_mode(handle: i32, flag: i32) {
 	unsafe { wizmoSetAxisProcessingMode(handle, flag); }
 }
 
-pub fn set_variable_gain_mode(handle: i32, flag: i32) {
-	unsafe { wizmoSetVariableGainMode(handle, flag); }
+pub fn set_speed_gain_mode(handle: i32, flag: i32) {
+	unsafe { wizmoSetSpeedGainMode(handle, flag); }
 }
 
 pub fn set_origin_mode(handle: i32, flag: i32) {
@@ -171,9 +173,9 @@ pub fn get_axis_processing_mode(handle: i32) -> bool {
 	}
 }
 
-pub fn get_variable_gain_mode(handle: i32) -> bool {
+pub fn get_speed_gain_mode(handle: i32) -> bool {
 	unsafe { 
-		let fn_res: i32 = wizmoGetVariableGainMode(handle);
+		let fn_res: i32 = wizmoGetSpeedGainMode(handle);
 		if fn_res != 0 { true } else{ false }
 	}
 }
