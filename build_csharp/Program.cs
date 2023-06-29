@@ -12,6 +12,8 @@ class WIZMOTest
         wm.Starter("");
         wm.SetAxisProcessingMode(true);
 
+        Thread.Sleep(3000);	//3s wait
+
         while (wm.IsRunning())
         {
             wm.SimplePoseUpdate(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
