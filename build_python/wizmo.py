@@ -205,7 +205,7 @@ class wizmo():
         self.simplePacket.gravityMotionRatio = gravity
         self.wizmolib.wizmoWrite(self.wizmoHandle, pointer(self.simplePacket))
 
-    def simple_motio_power_update(self, accel:float, speed:float):
+    def simple_motion_power_update(self, accel:float, speed:float):
         if self.wizmoHandle == WIZMO_HANDLE_ERROR:
             return
 
