@@ -1,6 +1,6 @@
 ﻿/**************************************************************************
 *
-*              Copyright (c) 2014-2017 by Wizapply.
+*              Copyright (c) 2014-2023 by Wizapply.
 *
 *  This software is copyrighted by and is the sole property of Wizapply
 *  All rights, title, ownership, or other interests in the software
@@ -81,7 +81,7 @@ typedef struct _simvr_data_packet
 //Default Packet
 WIZMODataPacket WIZMOPORT DefaultWIZMOPacket();
 
-#define WIZMO_SDKVERSION "4.5"
+#define WIZMO_SDKVERSION "4.6"
 
 struct Property;
 
@@ -139,7 +139,7 @@ public:
 private:
 	void Update(WIZMODataPacket& packet);
 	void ThreadUpdate();
-	bool CalcToAxisPacket(WIZMODataPacket& packet);
+	void CalcToAxisPacket(WIZMODataPacket& packet);
 	void LogError();
 
 	void LANStart();

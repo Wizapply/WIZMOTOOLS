@@ -47,6 +47,8 @@ namespace Debug {
 	const int WIZMOLOG_MAXCOUNT = 4096;	//4KB
 
 	WIZMOPORT void Log(std::string message);
+	WIZMOPORT void Log(float message);
+	WIZMOPORT void Log(int message);
 	WIZMOPORT void LogWarning(std::string message);
 	WIZMOPORT void Log(std::string serial, std::string message);
 	WIZMOPORT void LogWarning(std::string serial, std::string message);
