@@ -13,11 +13,13 @@ ADDRESS = "127.0.0.1"
 
 sc = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sc.bind((HOST, PORT))
+sc.settimeout(0.1)
 
 try:
     wm = wizmo.wizmo(True)
 except FileNotFoundError:
     print("WIZMO DLL NOT FOUND ERROR!")
+    sc.close()
     exit()
 
 wm.starter('')
@@ -37,6 +39,8 @@ while wm.is_running():
         rolldata = float(dataraw[0])
         pitchdata = float(dataraw[1])
         yawdata = float(dataraw[2])
+    except socket.timeout:
+        pass
     except socket.error:
         print("UDP ERROR")
         break
@@ -47,5 +51,6 @@ while wm.is_running():
 
 wm.close()
 wm.get_backlog(True)
+sc.close()
 
 print('-------- FINISH WIZMO-TOOLS --------')
