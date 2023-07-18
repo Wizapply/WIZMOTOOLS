@@ -205,12 +205,30 @@ class wizmo():
         self.simplePacket.gravityMotionRatio = gravity
         self.wizmolib.wizmoWrite(self.wizmoHandle, pointer(self.simplePacket))
 
+    def simple_motion_speed_update(self, accel:float, speed1:float, speed2:float, speed3:float, speed4:float, speed5:float, speed6:float):
+        if self.wizmoHandle == WIZMO_HANDLE_ERROR:
+            return
+
+        self.simplePacket.accel = accel
+        self.simplePacket.speed1_all = speed1
+        self.simplePacket.speed2 = speed2
+        self.simplePacket.speed3 = speed3
+        self.simplePacket.speed4 = speed4
+        self.simplePacket.speed5 = speed5
+        self.simplePacket.speed6 = speed6
+        self.wizmolib.wizmoWrite(self.wizmoHandle, pointer(self.simplePacket))
+
     def simple_motion_power_update(self, accel:float, speed:float):
         if self.wizmoHandle == WIZMO_HANDLE_ERROR:
             return
 
-        self.simplePacket.accelAxis123 = accel
-        self.simplePacket.speedAxis123 = speed
+        self.simplePacket.accel = accel
+        self.simplePacket.speed1_all = speed
+        self.simplePacket.speed2 = speed
+        self.simplePacket.speed3 = speed
+        self.simplePacket.speed4 = speed
+        self.simplePacket.speed5 = speed
+        self.simplePacket.speed6 = speed
         self.wizmolib.wizmoWrite(self.wizmoHandle, pointer(self.simplePacket))
 
     def packet_update(self, packet:wizmoPacket):
