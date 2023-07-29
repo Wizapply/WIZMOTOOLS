@@ -96,7 +96,7 @@ class wizmo():
                 libloadpath += '\\libwizmo.so'
             else:
                 libloadpath += '\\libwizmo32.so'
-        print(libloadpath)
+        
         if wizmo.m_wizmolib == None:
             wizmo.m_wizmolib = cdll.LoadLibrary(libloadpath)
 
