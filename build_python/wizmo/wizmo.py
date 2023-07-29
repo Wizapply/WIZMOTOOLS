@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Import
 from ctypes import *
-import time, platform
+import time, platform, os
 from enum import IntEnum
 
 #define
@@ -85,18 +85,18 @@ class wizmo():
     m_wizmolib = None
 
     def __init__(self, verbose:bool=False):
-        libloadpath = ''
+        libloadpath = os.path.dirname(__file__)
         if platform.system() == 'Windows':
             if platform.architecture()[0] == '64bit':
-                libloadpath = './wizmo.dll'
+                libloadpath += '\\wizmo.dll'
             else:
-                libloadpath = './wizmo32.dll'
+                libloadpath += '\\wizmo32.dll'
         else:
             if platform.architecture()[0] == '64bit':
-                libloadpath = './libwizmo.so'
+                libloadpath += '\\libwizmo.so'
             else:
-                libloadpath = './libwizmo32.so'
-        
+                libloadpath += '\\libwizmo32.so'
+        print(libloadpath)
         if wizmo.m_wizmolib == None:
             wizmo.m_wizmolib = cdll.LoadLibrary(libloadpath)
 
