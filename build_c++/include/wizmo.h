@@ -81,7 +81,7 @@ typedef struct _simvr_data_packet
 //Default Packet
 WIZMODataPacket WIZMOPORT DefaultWIZMOPacket();
 
-#define WIZMO_SDKVERSION "4.6"
+#define WIZMO_SDKVERSION "4.61"
 
 struct Property;
 

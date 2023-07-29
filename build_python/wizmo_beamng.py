@@ -9,13 +9,15 @@ import math
 
 #IIRFilter Class
 class IIRFilter:
+    
     LOW_PASS = 0
-    HIGH_PASS_1ST = 1
-    HIGH_PASS_2ND = 2
+    LOW_PASS_ODR1 = 1
+    HIGH_PASS = 2
+    HIGH_PASS_ODR1 = 3
+    ALL_PASS = 4
 
-    def __init__(self, filterMode, sampleRate, o, z=0.0):
-        self.ft_o = o
-        self.ft_z = z
+    def __init__(self, filterMode, sampleRate, cutoff):
+        self.ft_o = cutoff
         self.sampleRate = sampleRate
 
         self.a1 = 0
@@ -27,13 +29,17 @@ class IIRFilter:
         self.out_prev = [0,0]
 
         if filterMode == self.LOW_PASS:
-            self._lowPassFilter(sampleRate,self.ft_o,self.ft_z)
-        elif filterMode == self.HIGH_PASS_1ST:
-            self._highPassIIRFilter1(sampleRate,self.ft_o,self.ft_z)
-        else:
-            self._highPassIIRFilter2(sampleRate,self.ft_o)
+            self._lowPassFilter(sampleRate, cutoff)
+        elif filterMode == self.LOW_PASS_ODR1:
+            self._lowPassFilter1(sampleRate, cutoff)
+        elif filterMode == self.HIGH_PASS:
+            self._highPassFilter(sampleRate, cutoff)
+        elif filterMode == self.HIGH_PASS_ODR1:
+            self._highPassFilter1(sampleRate, cutoff)
+        else:   #ALL PASS
+            self._allPassFilter(sampleRate, cutoff)
 
-    def compute(self, in_data) -> float:
+    def compute(self, in_data:float) -> float:
         ret = self.a1 * in_data + self.a2 * self.in_prev[0] + self.a3 * self.in_prev[1] - \
           self.b1 * self.out_prev[0] - self.b2 * self.out_prev[1]
 
@@ -43,41 +49,64 @@ class IIRFilter:
         self.out_prev[0] = ret
         return ret
 
-    def _lowPassFilter(self, sample_rate, Wn, Z):
-        # H(s) = Wn^2 / ( s^2 + 2*Z*Wn s + Wn^2) 
-        alpha = Wn*Wn
-        beta = 2.0*Z*Wn
-        Wac = math.tan(Wn/(sample_rate*2.0))
-        norm = 1.0/(Wac*Wac) + beta/Wac + alpha
-        self.a1 = alpha/norm
-        self.a2 = 2.0*alpha/norm
-        self.a3 = alpha/norm
-        self.b1 = (-2.0/(Wac*Wac)+2.0*alpha)/norm
-        self.b2 = (1.0/(Wac*Wac)-beta/Wac+alpha)/norm
+    def _lowPassFilter(self, sample_rate, fc):
+        fa = 1.0 / (2.0*math.pi) * math.tan(math.pi*fc/sample_rate)
+        pfc = 2.0*math.pi*fa;
+        RT2 = math.sqrt(2.0);
 
-    def _highPassIIRFilter2(self,sample_rate, Wb):
-        # H(s) = s / s + Wb
-        # Calculate 1st order IIR filter coefficients by bilinear z-transform
-        Wac = math.tan(Wb/(sample_rate*2.0))
-        norm = 1.0+Wb*Wac
-	
-        self.a1 = 1.0/norm
-        self.a2 = -1.0/norm
+        self.a1 = pfc*pfc / (1 + RT2*pfc + pfc*pfc)
+        self.a2 = 2.0*pfc*pfc / (1 + RT2*pfc + pfc*pfc)
+        self.a3 = pfc*pfc / (1 + RT2*pfc + pfc*pfc)
+        self.b1 = (-2.0 + 2.0*pfc*pfc) / (1 + RT2*pfc + pfc*pfc)
+        self.b2 = (1.0 - RT2*pfc + pfc*pfc) / (1 + RT2*pfc + pfc*pfc)
+
+    def _lowPassFilter1(self, sample_rate, fc):
+        fa = 1.0 / (2.0*math.pi) * math.tan(math.pi*fc/sample_rate)
+        pfc = 2.0*math.pi*fa;
+        RT2 = math.sqrt(2.0);
+
+        self.a1 = pfc / (pfc + 1.0)
+        self.a2 = pfc / (pfc + 1.0)
         self.a3 = 0.0
-        self.b1 = (-1.0+Wb*Wac)/norm
+        self.b1 = (pfc - 1.0) / (pfc + 1.0)
         self.b2 = 0.0
 
-    def _highPassIIRFilter1(self, sample_rate, Wn, Z):
-        # H(s) = s^2 / ( s^2 + 2*Z*Wn s + Wn^2)   
-        # Calculate 2nd order IIR filter coefficients by bilinear z-transform
-        Wac = math.tan(Wn/(sample_rate*2.0))
-        norm = 1.0+2.0*Z*Wn*Wac+Wn*Wn*Wac*Wac
+    def _highPassFilter(self, sample_rate, fc):
+        fa = 1.0 / (2.0*math.pi) * math.tan(math.pi*fc/sample_rate)
+        pfc = 2.0*math.pi*fa;
+        RT2 = math.sqrt(2.0);
 	
-        self.a1 = 1.0/norm
-        self.a2 = -2.0/norm
-        self.a3 = 1.0/norm
-        self.b1 = (-2.0+2.0*Wn*Wn*Wac*Wac)/norm
-        self.b2 = (1.0-2.0*Z*Wn*Wac+Wn*Wn*Wac*Wac)/norm
+        self.a1 = 1.0 / (pfc*pfc + RT2*pfc + 1.0)
+        self.a2 = -2.0 / (pfc*pfc + RT2*pfc + 1.0)
+        self.a3 = 1.0 / (pfc*pfc + RT2*pfc + 1.0)
+        self.b1 = (2.0*pfc*pfc - 2.0) / (pfc*pfc + RT2*pfc + 1.0)
+        self.b2 = (pfc*pfc - RT2*pfc + 1.0) / (pfc*pfc + RT2*pfc + 1.0)
+
+    def _highPassFilter1(self, sample_rate, fc):
+        fa = 1.0 / (2.0*math.pi) * math.tan(math.pi*fc/sample_rate)
+        pfc = 2.0*math.pi*fa;
+        RT2 = math.sqrt(2.0);
+	
+        self.a1 = 1.0 / (pfc + 1.0)
+        self.a2 = -1.0 / (pfc + 1.0)
+        self.a3 = 0.0
+        self.b1 = (pfc - 1.0) / (pfc + 1.0)
+        self.b2 = 0.0
+
+    def _allPassFilter(self, sample_rate, fc):
+        fa = 1.0 / (2.0*math.pi) * math.tan(math.pi*fc/sample_rate)
+        pfc = 2.0*math.pi*fa;
+        RT2 = math.sqrt(2.0);
+
+        w0 = 2.0 * math.pi*fc / sample_rate;
+        alpha = math.sin(w0) / 2.0;
+	
+        self.a1 = (1.0 - alpha) / (1.0 + alpha)
+        self.a2 = -2.0 * math.cos(w0) / (1.0 + alpha)
+        self.a3 = (1.0 + alpha) / (1.0 + alpha)
+        self.b1 = -2.0 * math.cos(w0) / (1.0 + alpha)
+        self.b2 = (1.0 - alpha) / (1.0 + alpha)
+
 #-----------------------------------------------------------
 
 print('-------- START WIZMO-TOOLS --------')
@@ -89,12 +118,12 @@ sc = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sc.bind(('', PORT))
 sc.settimeout(0.5)
 
-_filter = [IIRFilter(IIRFilter.LOW_PASS, 100, 3.0, 0.707),
-           IIRFilter(IIRFilter.LOW_PASS, 100, 3.0, 0.707),
-           IIRFilter(IIRFilter.LOW_PASS, 100, 3.0, 0.707),
-           IIRFilter(IIRFilter.LOW_PASS, 100, 2.95, 0.707),
-           IIRFilter(IIRFilter.LOW_PASS, 100, 2.95, 0.707),
-           IIRFilter(IIRFilter.LOW_PASS, 100, 2.95, 0.707)]
+_filter = [IIRFilter(IIRFilter.LOW_PASS, 100, 2.55),
+           IIRFilter(IIRFilter.LOW_PASS, 100, 2.55),
+           IIRFilter(IIRFilter.LOW_PASS, 100, 2.55),
+           IIRFilter(IIRFilter.LOW_PASS, 100, 1.25),
+           IIRFilter(IIRFilter.LOW_PASS, 100, 1.25),
+           IIRFilter(IIRFilter.LOW_PASS, 100, 1.25)]
 
 try:
     wm = wizmo.wizmo(True)
@@ -103,7 +132,7 @@ except FileNotFoundError:
     exit()
 
 wm.starter('')
-wm.simple_motio_power_update(1.0,1.0)
+wm.simple_motion_power_update(1.0,1.0)
 wm.speed_gain_mode(wizmo.wizmoSpeedGain.Variable)
 
 time.sleep(3)
