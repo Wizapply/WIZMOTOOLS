@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Import
 from ctypes import *
-import time, platform, os
+import time, platform, os, sys
 from enum import IntEnum
 
 #define
@@ -96,6 +96,19 @@ class wizmo():
                 libloadpath += '\\libwizmo.so'
             else:
                 libloadpath += '\\libwizmo32.so'
+
+        #For pyinstaller build
+        if getattr(sys, 'frozen', False):
+            if platform.system() == 'Windows':
+                if platform.architecture()[0] == '64bit':
+                    libloadpath = 'wizmo.dll'
+                else:
+                    libloadpath = 'wizmo32.dll'
+            else:
+                if platform.architecture()[0] == '64bit':
+                    libloadpath = 'libwizmo.so'
+                else:
+                    libloadpath = 'libwizmo32.so'
         
         if wizmo.m_wizmolib == None:
             wizmo.m_wizmolib = cdll.LoadLibrary(libloadpath)
@@ -237,13 +250,13 @@ class wizmo():
 
         self.wizmolib.wizmoWrite(self.wizmoHandle, pointer(packet))
 
-    def origin_mode(self, value:bool=None):
+    def axis_processing_mode(self, value:bool=None):
         if value==None:
             return self.wizmolib.wizmoGetAxisProcessingMode(self.wizmoHandle)
         else:
             self.wizmolib.wizmoSetAxisProcessingMode(self.wizmoHandle, value)
     
-    def axis_processing_mode(self, value:bool=None):
+    def origin_mode(self, value:bool=None):
         if value==None:
             return self.wizmolib.wizmoGetOriginMode(self.wizmoHandle)
         else:
