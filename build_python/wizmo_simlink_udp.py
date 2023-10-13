@@ -112,7 +112,7 @@ class IIRFilter:
 print('-------- START WIZMO-TOOLS --------')
 
 _HOST = '127.0.0.1'
-_PORT = 4444
+_PORT = 4444    #port
 _MAX_PACKETSIZE = 128
 
 sc = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -135,6 +135,7 @@ except FileNotFoundError:
 wm.starter('')
 wm.simple_motion_power_update(1.0,1.0)
 wm.speed_gain_mode(wizmo.wizmoSpeedGain.Variable)
+wm.simple_motion_ratio_update(0.8, 0.7)
 
 time.sleep(3)
 print('This program can change motion of wizmo from Simlink UDP/IP')
@@ -147,26 +148,25 @@ while wm.is_running():
     heavedata = 0.0
     swaydata = 0.0
     surgedata = 0.0
+    
     try:
         data, addr = sc.recvfrom(_MAX_PACKETSIZE)
-        if data[0:4].decode() == "SLK":
-            [posX, posY, posZ] = struct.unpack('3f', data[4:4+12])
-            [velX, velY, velZ] = struct.unpack('3f', data[16:16+12])
-            [accX, accY, accZ] = struct.unpack('3f', data[28:28+12])
-            [upVecX, upVecY, upVecZ] = struct.unpack('3f', data[40:40+12])
-            [rollPos, pitchPos, YawPos] = struct.unpack('3f', data[52:52+12])
-            heavedata = round(accZ,2) / 10.0
-            swaydata = round(accX,2) / 10.0
-            surgedata = round(accY,2) / 10.0
-            
-            rolldata = round(math.degrees(rollPos),2) / 10.0
-            pitchdata = round(math.degrees(pitchPos),2) /10.0
+        curtime = struct.unpack('1d', data[0:8])[0]
+        roll, pitch, yaw = struct.unpack('3d', data[8:8+24])
+        AVx, AVy, AVz, Ax, Ay, Az = struct.unpack('3d3d', data[32:32+48])
+        
+        heavedata = round(Ay,2) / 10.0
+        swaydata = round(Ax,2) / 10.0
+        surgedata = round(Az,2) / 10.0
+        
+        rolldata = round(math.degrees(roll),2) / 10.0
+        pitchdata = round(math.degrees(pitch),2) /10.0
 
-            heavedata = _filter[0].compute(heavedata)
-            swaydata = _filter[1].compute(swaydata)
-            surgedata = _filter[2].compute(surgedata)
-            rolldata = _filter[3].compute(rolldata)
-            pitchdata = _filter[4].compute(pitchdata)
+        heavedata = _filter[0].compute(heavedata)
+        swaydata = _filter[1].compute(swaydata)
+        surgedata = _filter[2].compute(surgedata)
+        rolldata = _filter[3].compute(rolldata)
+        pitchdata = _filter[4].compute(pitchdata)
 
     except socket.timeout:
         pass
