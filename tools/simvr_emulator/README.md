@@ -1,9 +1,9 @@
-SIMVR Emulator
+WIZMO Emulator
 ==================
-SIMVR Emulatorとは、SIMVRの動作チェックを実機無しに確認できるアプリケーションです。  
+WIZMO Emulatorとは、SIMVRの動作チェックを実機無しに確認できるアプリケーションです。  
 ※ どのように動いているかを確認するためであり、体感や実際の動作とは異なる場合があります。
 
 ## 使い方
 ### 実行・セットアップ
-１．`SIMVREmulatorProgram.zip`を解凍して内部のEXEを実行します。（実行したまま）  
-２．これで通常通りUnityエディタ内のSIMVRSystemによってエミュレートが確認できます。
+１．`WIZMOEmulatorProgram.zip`を解凍して内部のEXEを実行します。（実行したまま）  
+２．これで通常通りUnityエディタ内のWIZMOSystemによってエミュレートが確認できます。

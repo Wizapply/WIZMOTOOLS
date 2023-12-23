@@ -53,8 +53,8 @@ typedef struct _simvr_data_packet
 	float rotationMotionRatio;
 	float gravityMotionRatio;
 
-	int commandSendCount;	//送信回数するときは1以上を入れる
-	char command[256];		//文字列で
+	int commandSendCount;
+	char command[256];
 
 } WIZMODataPacket;
 
@@ -81,7 +81,7 @@ typedef struct _simvr_data_packet
 //Default Packet
 WIZMODataPacket WIZMOPORT DefaultWIZMOPacket();
 
-#define WIZMO_SDKVERSION "4.61"
+#define WIZMO_SDKVERSION "4.62"
 
 struct Property;
 
@@ -95,25 +95,20 @@ public:
 
 	//Initialize
 	/*!	@brief Open the WIZMO System
-		@param appCode : Appication Code(Not a serial number)*/
+		@param appCode : Appication Code(Not a serial number)
+		@param assign : Serial Number Code*/
 	void Open(const char* appCode);
 	void Open(const char* appCode, const char* assign);
 	/*!	@brief Close the WIZMO System */
 	void Close();
 
 	//Write
-	/*!	@brief This function sets data to WIZMO. 
-		@param qt Set an image processing method. */
 	int Write(const WIZMODataPacket* packet);
 
 	//Callback
-	/*!	@brief This function sets data to WIZMO.
-		@param qt Set an image processing method. */
 	void SetCallbackUpdateFunction(void(*func)());
 
 	//Properties
-	/*!	@brief This function sets data to WIZMO.
-		@param qt Set an image processing method. */
 	void SetOriginMode(bool value);
 	bool GetOriginMode();
 

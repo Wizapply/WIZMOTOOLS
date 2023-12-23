@@ -1,0 +1,29 @@
+{
+	"FileVersion": 3,
+	"Version": 5,
+	"VersionName": "4.62",
+	"FriendlyName": "WIZMOTOOLS UE Plugin",
+	"Description": "WIZMOTOOLS Plugin for UnrealEngine.",
+	"Category": "MotionDevice",
+	"CreatedBy": "WIZAPPLY CO.,LTD.",
+	"CreatedByURL": "https://motion.wizapply.com",
+	"DocsURL": "https://github.com/Wizapply/WIZMOTOOLS",
+	"MarketplaceURL": "",
+	"SupportURL": "https://motion.wizapply.com",
+	"EnabledByDefault": true,
+	"CanContainContent": false,
+	"IsBetaVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "WIZMOPlugin",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"PlatformAllowList": [
+				"Win64",
+				"Linux"
+			]
+		}
+	],
+	"IsExperimentalVersion": false
+}

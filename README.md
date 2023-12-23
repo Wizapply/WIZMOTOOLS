@@ -22,8 +22,8 @@ WIZMOTOOLSは、WIZAPPLYのサポートが認定された多軸モーション�
 * `/build_csharp` : c#で開発可能なcsファイル・プロジェクトファイル
 * `/build_python` : Pythonで開発可能なpyファイル
 * `/build_rust` : Rustで開発可能なrsファイル・プロジェクトファイル
-* `/build_unity` : Unity2019以降で開発可能なUnityPackageファイル
-* `/build_ue4` : UnrealEngine4で開発可能なプラグイン及びプロジェクト
+* `/build_unity` : Unity2021以降で開発可能なUnityPackageファイル
+* `/build_ue5` : UnrealEngine5で開発可能なプラグイン及びプロジェクト
 * `/cad_datas` : ハードウェア・筐体CAD情報
 * `/manuals` : ハードウェアの取扱説明書
 * `/demo` : 動作を確認するためのサンプルデモ
