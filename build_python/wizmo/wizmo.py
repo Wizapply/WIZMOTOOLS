@@ -87,26 +87,34 @@ class wizmo():
     def __init__(self, verbose:bool=False):
         libloadpath = os.path.dirname(__file__)
         if platform.system() == 'Windows':
-            if platform.architecture()[0] == '64bit':
+            if platform.machine() == 'AMD64':
                 libloadpath += '\\wizmo.dll'
             else:
                 libloadpath += '\\wizmo32.dll'
         else:
-            if platform.architecture()[0] == '64bit':
-                libloadpath += '\\libwizmo.so'
+            if platform.machine() == 'AMD64':
+                libloadpath += '/libwizmo.so'
+            elif 'armv' in platform.machine():
+                libloadpath += '/libwizmoRPi32.so'
+            elif 'aarch64' in platform.machine():
+                libloadpath = 'libwizmoRPi64.so'
             else:
-                libloadpath += '\\libwizmo32.so'
+                libloadpath += '/libwizmo32.so'
 
         #For pyinstaller build
         if getattr(sys, 'frozen', False):
             if platform.system() == 'Windows':
-                if platform.architecture()[0] == '64bit':
+                if platform.machine() == 'AMD64':
                     libloadpath = 'wizmo.dll'
                 else:
                     libloadpath = 'wizmo32.dll'
             else:
-                if platform.architecture()[0] == '64bit':
+                if platform.machine() == 'AMD64':
                     libloadpath = 'libwizmo.so'
+                elif 'armv' in platform.machine():
+                    libloadpath = 'libwizmoRPi32.so'
+                elif 'aarch64' in platform.machine():
+                    libloadpath = 'libwizmoRPi64.so'
                 else:
                     libloadpath = 'libwizmo32.so'
         
