@@ -85,38 +85,30 @@ class wizmo():
     m_wizmolib = None
 
     def __init__(self, verbose:bool=False):
-        libloadpath = os.path.dirname(__file__)
-        if platform.system() == 'Windows':
-            if platform.machine() == 'AMD64':
+        os_name = platform.system()
+        arch_is64bit = platform.architecture()[0] == '64bit'
+        arch_isRPi = False
+        if 'armv' in platform.machine() or 'aarch64' in platform.machine():
+            arch_isRPi = True
+        
+        #For pyinstaller build
+        if getattr(sys, 'frozen', False):
+            libloadpath = ""
+        else:
+            libloadpath = os.path.dirname(__file__)
+            
+        if os_name == 'Windows':
+            if arch_is64bit:
                 libloadpath += '\\wizmo.dll'
             else:
                 libloadpath += '\\wizmo32.dll'
         else:
-            if platform.machine() == 'AMD64':
-                libloadpath += '/libwizmo.so'
-            elif 'armv' in platform.machine():
-                libloadpath += '/libwizmoRPi32.so'
-            elif 'aarch64' in platform.machine():
-                libloadpath = 'libwizmoRPi64.so'
+            if arch_isRPi:
+                if arch_is64bit: libloadpath += '/libwizmoRPi64.so'
+                else: libloadpath += '/libwizmoRPi32.so'
             else:
-                libloadpath += '/libwizmo32.so'
-
-        #For pyinstaller build
-        if getattr(sys, 'frozen', False):
-            if platform.system() == 'Windows':
-                if platform.machine() == 'AMD64':
-                    libloadpath = 'wizmo.dll'
-                else:
-                    libloadpath = 'wizmo32.dll'
-            else:
-                if platform.machine() == 'AMD64':
-                    libloadpath = 'libwizmo.so'
-                elif 'armv' in platform.machine():
-                    libloadpath = 'libwizmoRPi32.so'
-                elif 'aarch64' in platform.machine():
-                    libloadpath = 'libwizmoRPi64.so'
-                else:
-                    libloadpath = 'libwizmo32.so'
+                if arch_is64bit: libloadpath += '/libwizmo.so'
+                else: libloadpath += '/libwizmo32.so'
         
         if wizmo.m_wizmolib == None:
             wizmo.m_wizmolib = cdll.LoadLibrary(libloadpath)
@@ -146,34 +138,39 @@ class wizmo():
 
         return buf_res
 
-    def starter(self, appCode:str):
+    def starter(self, appCode:str, blocking:bool=False):
         if self.wizmoHandle >= 0:
             if self.verbose: print("WIZMO IS ALREADY OPEN.")
             return WIZMO_HANDLE_ERROR
 
-        whandle = int(self.wizmolib.wizmoOpen(appCode.encode()))
-        if whandle < 0:
+        self.wizmoHandle = int(self.wizmolib.wizmoOpen(appCode.encode()))
+        if self.wizmoHandle < 0:
             if self.verbose: print("WIZMO OPEN ERROR!")
             self.wizmoHandle = WIZMO_HANDLE_ERROR
         else:
             if self.verbose: print ("STARTED WIZMO.")
-            time.sleep(1) #wait
-        self.wizmoHandle = whandle
+            if blocking == True:
+                while self.get_status() <= wizmoStatus.Initial:
+                    print(self.get_status())
+                    time.sleep(0.1)
+
         return self.wizmoHandle
 
-    def starter_serialassign(self, appCode:str, assign:str):
+    def starter_serialassign(self, appCode:str, assign:str, blocking:bool=False):
         if self.wizmoHandle >= 0:
             if self.verbose: print("WIZMO IS ALREADY OPEN.")
             return WIZMO_HANDLE_ERROR
 
-        whandle = int(self.wizmolib.wizmoOpenSerialAssign(appCode.encode(), assign.encode()))
-        if whandle < 0:
+        self.wizmoHandle = int(self.wizmolib.wizmoOpenSerialAssign(appCode.encode(), assign.encode()))
+        if self.wizmoHandle < 0:
             if self.verbose: print("WIZMO OPEN ERROR!")
             self.wizmoHandle = WIZMO_HANDLE_ERROR
         else:
             if self.verbose: print ("STARTED WIZMO.")
-            time.sleep(1) #wait
-        self.wizmoHandle = whandle
+            if blocking == True:
+                while self.get_status() == wizmoStatus.Initial:
+                    time.sleep(0.1)
+
         return self.wizmoHandle
 
     def close(self):
