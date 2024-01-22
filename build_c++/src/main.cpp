@@ -42,7 +42,7 @@ WIZMOSDK::WIZMO* g_pWIZMOSystem = NULL;
 
 void simvrUpdateBackLog() {
 
-	if (pWIZMOSystem == NULL)
+	if (g_pWIZMOSystem == NULL)
 		return;
 
 	char logbuffer[WIZMOSDK::Debug::WIZMOLOG_MAXCOUNT];
