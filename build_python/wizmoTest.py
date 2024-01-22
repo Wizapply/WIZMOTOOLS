@@ -12,10 +12,10 @@ except FileNotFoundError:
     exit()
 
 wm.starter('',False)
-print('DDDD')
+
 while wm.is_running():
-    print(wm.get_status())
-    wm.simple_pose_update(0.0,0.0,0.0,0.0,0.0,0.0)
+    #print(wm.get_status())
+    wm.simple_pose_update(0.0,0.0,0.0,0.0,0.0,0.0) #Write required to update [is_running]
     wm.get_backlog(True)
     time.sleep(0.1) #100ms
 

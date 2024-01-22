@@ -110,7 +110,7 @@ class wizmo():
                 if arch_is64bit: libloadpath += '/libwizmo.so'
                 else: libloadpath += '/libwizmo32.so'
         
-        if wizmo.m_wizmolib == None:
+        if wizmo.m_wizmolib is None:
             wizmo.m_wizmolib = cdll.LoadLibrary(libloadpath)
 
         self.wizmolib = wizmo.m_wizmolib
