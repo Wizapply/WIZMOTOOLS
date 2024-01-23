@@ -5,18 +5,23 @@ Windows、Linux(+Raspberry Pi)に対応。
 ## 使い方
 ### 実行・セットアップ
 
-PC  
+・取得セットアップ  
 ```
-sudo apt install cmake
-cd ./build_c++/build/build_cmake
-cmake -DUSE_32BITOS=0 -DUSE_RPI=0 .
-```
-
-Raspberry Pi  
-```
-sudo apt install cmake
-cd ./build_c++/build/build_cmake
-cmake -DUSE_32BITOS=0 -DUSE_RPI=1 .
+sudo apt install cmake git
+git clone https://github.com/Wizapply/WIZMOTOOLS.git
+cd WIZMOTOOLS
 ```
 
-x86系の場合は「-DUSE_32BITOS=1」としてください。
+・ビルド  
+
+```
+cd build_c++/build/build_cmake
+cmake .
+make
+
+cd ../../bin/***/
+./wizmo_app
+```
+
+cd ../../bin/***/の「***」部分は生成されたアーキテクチャごとに分かれます。
+x64 or x86 or aarch64 or armv7l等
