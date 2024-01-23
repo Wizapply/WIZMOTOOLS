@@ -12,7 +12,7 @@ git clone https://github.com/Wizapply/WIZMOTOOLS.git
 cd WIZMOTOOLS
 ```
 
-・ビルド  
+・ビルド・実行  
 
 ```
 cd build_c++/build/build_cmake
@@ -23,5 +23,5 @@ cd ../../bin/＊＊＊/
 ./wizmo_app
 ```
 
-cd ../../bin/＊＊＊/の「＊＊＊」部分は生成されたアーキテクチャごとに分かれます。
+cd ../../bin/＊＊＊/の「＊＊＊」部分は生成されたアーキテクチャごとに分かれます。  
 x64 or x86 or aarch64 or armv7l等
