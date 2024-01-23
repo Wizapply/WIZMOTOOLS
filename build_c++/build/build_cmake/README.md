@@ -19,9 +19,9 @@ cd build_c++/build/build_cmake
 cmake .
 make
 
-cd ../../bin/***/
+cd ../../bin/＊＊＊/
 ./wizmo_app
 ```
 
-cd ../../bin/***/の「***」部分は生成されたアーキテクチャごとに分かれます。
+cd ../../bin/＊＊＊/の「＊＊＊」部分は生成されたアーキテクチャごとに分かれます。
 x64 or x86 or aarch64 or armv7l等
