@@ -4,6 +4,7 @@ import asyncio as aio
 
 import csv
 import sys
+from ctypes import windll
 
 #req: pip install keyboard
 import keyboard
@@ -82,7 +83,8 @@ async def simvr_sequence(lock, work_data):
 
 async def main():
     global simvr_variable, simvr_endflag
-    
+    windll.winmm.timeBeginPeriod(1)
+
     #main
     print('-------- START WIZMO-TOOLS --------')
 
@@ -139,6 +141,7 @@ async def main():
     #await sc_task      #wait
     sc_task.cancel()    #cancel
     print('-------- FINISH SCRIPT --------')
+    windll.winmm.timeEndPeriod(1)
 
 #main
 if __name__ == "__main__":
