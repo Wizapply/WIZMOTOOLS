@@ -1,18 +1,3 @@
-"""
-PI_WIZMO_Xplane.py
-
-Ported to Python by Sandy Barbour - 28/04/2005
-Ported to XPPython3 by Peter Buckner - 26-Jul-2020
-
-This plugin implements the canonical first program.  In this case, we will
-create a window that has the text hello-world in it.  As an added bonus
-the  text will change to 'This is a plugin' while the mouse is held down
-in the window.
-
-This plugin demonstrates creating a window and writing mouse and drawing
-callbacks for that window.
-"""
-
 import xp
 import wizmo
 import time
