@@ -1,6 +1,6 @@
 /**************************************************************************
 *
-*              Copyright (c) 2014-2017 by Wizapply.
+*              Copyright (c) 2014-2024 by Wizapply.
 *
 *  This software is copyrighted by and is the sole property of Wizapply
 *  All rights, title, ownership, or other interests in the software
@@ -16,7 +16,7 @@
 *  Unity : TM & Copyright Unity Technologies. All Rights Reserved
 *
 *  Wizapply                                info@wizapply.com
-*  5F, KS Building,                        http://wizapply.com
+*  5F, KS Building,                        https://wizapply.com
 *  3-7-10 Ichiokamotomachi, Minato-ku,
 *  Osaka, 552-0002, Japan
 *
@@ -48,6 +48,8 @@ namespace WIZMOSDK {
 		SIMVR4DOF,
 		SIMVR6DOF,
 		SIMVR6DOF_MASSIVE,
+		SIMVRDRIVEX,
+		SIMVRDRIVEX200,
 		ANTSEAT,
 	};
 

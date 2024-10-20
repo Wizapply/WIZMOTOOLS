@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "WIZMOPlugin.h"
+
 #include "Components/ActorComponent.h"
 #include "WIZMOComponent.generated.h"
 
@@ -40,6 +42,8 @@ class UWIZMOComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
+private:
+	FWIZMOPluginModule* wizmoPlugin;
 	WIZMOHANDLE wizmoHandle;
 	bool stopActuatorTrigger;
 	void UpdateState();

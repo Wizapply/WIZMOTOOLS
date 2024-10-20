@@ -1,12 +1,16 @@
-// Copyright 1998-2015 Epic Games, Inc. All Rights Reserved.
+// Copyright Epic Games, Inc. All Rights Reserved.
 
+#include "WIZMOPlugin.h"
 
-#include "WIZMOPluginPrivatePCH.h"
+#define LOCTEXT_NAMESPACE "FWIZMOPluginModule"
+DEFINE_LOG_CATEGORY(WIZMOLog);
+
+//--------------------------------
+
 #define WIN32_LEAN_AND_MEAN
+#include "Windows/WindowsSystemIncludes.h"
 #include <windows.h>
 #include <stdlib.h>	// for mbstowcs_s(), wcstombs_s()
-
-DEFINE_LOG_CATEGORY(WIZMOLog);
 
 //LoadLibrary
 extern "C" {
@@ -20,79 +24,43 @@ extern "C" {
 	typedef bool(*wizmoGetAxisProcessingMode_ptr)(WIZMOHANDLE handle);
 	typedef void(*wizmoSetSpeedGainMode_ptr)(WIZMOHANDLE handle, int value);
 	typedef int(*wizmoGetSpeedGainMode_ptr)(WIZMOHANDLE handle);
-	typedef const char*(*wizmoGetAppCode_ptr)(WIZMOHANDLE handle);
-	typedef const char*(*wizmoGetSerialNumber_ptr)(WIZMOHANDLE handle);
+	typedef const char* (*wizmoGetAppCode_ptr)(WIZMOHANDLE handle);
+	typedef const char* (*wizmoGetSerialNumber_ptr)(WIZMOHANDLE handle);
 	typedef int(*wizmoGetState_ptr)(WIZMOHANDLE handle);
 	typedef int(*wizmoGetStatusEXT4_ptr)(WIZMOHANDLE handle);
-	typedef const char*(*wizmoGetVersion_ptr)(WIZMOHANDLE handle);
+	typedef const char* (*wizmoGetVersion_ptr)(WIZMOHANDLE handle);
 	typedef int (*wizmoGetBackLog_ptr)(char* buffer_p, int buffer_size);
 	typedef int (*wizmoBackLogDataAvailable_ptr)();
 	typedef bool(*wizmoIsRunning_ptr)(WIZMOHANDLE handle);
 }
 
-class FWIZMOPlugin : public IWIZMOPlugin
-{
-public:
-	/** IModuleInterface implementation */
-	virtual void StartupModule() override;
-	virtual void ShutdownModule() override;
+static wizmoOpen_ptr wizmoOpen;
+static wizmoOpenSerialAssign_ptr wizmoOpenSerialAssign;
+static wizmoClose_ptr wizmoClose;
+static wizmoWrite_ptr wizmoWrite;
+static wizmoSetOriginMode_ptr wizmoSetOriginMode;
+static wizmoGetOriginMode_ptr wizmoGetOriginMode;
+static wizmoSetAxisProcessingMode_ptr wizmoSetAxisProcessingMode;
+static wizmoGetAxisProcessingMode_ptr wizmoGetAxisProcessingMode;
+static wizmoSetSpeedGainMode_ptr wizmoSetSpeedGainMode;
+static wizmoGetSpeedGainMode_ptr wizmoGetSpeedGainMode;
+static wizmoGetAppCode_ptr wizmoGetAppCode;
+static wizmoGetSerialNumber_ptr wizmoGetSerialNumber;
+static wizmoGetState_ptr wizmoGetState;
+static wizmoGetStatusEXT4_ptr wizmoGetStatusEXT4;
+static wizmoGetVersion_ptr wizmoGetVersion;
+static wizmoGetBackLog_ptr wizmoGetBackLog;
+static wizmoBackLogDataAvailable_ptr wizmoBackLogDataAvailable;
+static wizmoIsRunning_ptr wizmoIsRunning;
 
-	//Control
-	virtual WIZMOHANDLE Open(const char* appCode, const char* serialAssign) override;
-	virtual void Close(WIZMOHANDLE handle) override;
+static HINSTANCE hLibrary = NULL;
+static bool isDllLoaded = false;
 
-	virtual void UpdateBackLog() override;
-	virtual void UpdateWIZMO(WIZMOHANDLE handle, WIZMOPacket* data) override;
-	
-	virtual void SetOriginMode(WIZMOHANDLE handle, bool value) override;
-	virtual bool GetOriginMode(WIZMOHANDLE handle) override;
-	virtual void SetAxisProcessingMode(WIZMOHANDLE handle, bool value) override;
-	virtual bool GetAxisProcessingMode(WIZMOHANDLE handle) override;
-	virtual void SetSpeedGainMode(WIZMOHANDLE handle, int value) override;
-	virtual int GetSpeedGainMode(WIZMOHANDLE handle) override;
-	
-	virtual const char* GetAppCode(WIZMOHANDLE handle) override;
-	virtual const char* GetWIZMOSerialNumber(WIZMOHANDLE handle) override;
-	virtual const char* GetVersion(WIZMOHANDLE handle) override;
-	virtual bool IsRunning(WIZMOHANDLE handle) override;
-	virtual int GetState(WIZMOHANDLE handle) override;
-	virtual int GetStatusEXT4(WIZMOHANDLE handle) override;
+//--------------------------------
 
-private:
-	HINSTANCE hLibrary;
-
-public:
-	wizmoOpen_ptr wizmoOpen;
-	wizmoOpenSerialAssign_ptr wizmoOpenSerialAssign;
-	wizmoClose_ptr wizmoClose;
-	wizmoWrite_ptr wizmoWrite;
-	wizmoSetOriginMode_ptr wizmoSetOriginMode;
-	wizmoGetOriginMode_ptr wizmoGetOriginMode;
-	wizmoSetAxisProcessingMode_ptr wizmoSetAxisProcessingMode;
-	wizmoGetAxisProcessingMode_ptr wizmoGetAxisProcessingMode;
-	wizmoSetSpeedGainMode_ptr wizmoSetSpeedGainMode;
-	wizmoGetSpeedGainMode_ptr wizmoGetSpeedGainMode;
-	wizmoGetAppCode_ptr wizmoGetAppCode;
-	wizmoGetSerialNumber_ptr wizmoGetSerialNumber;
-	wizmoGetState_ptr wizmoGetState;
-	wizmoGetStatusEXT4_ptr wizmoGetStatusEXT4;
-	wizmoGetVersion_ptr wizmoGetVersion;
-	wizmoGetBackLog_ptr wizmoGetBackLog;
-	wizmoBackLogDataAvailable_ptr wizmoBackLogDataAvailable;
-	wizmoIsRunning_ptr wizmoIsRunning;
-
-	bool isDllLoaded;
-	bool isOpen;
-	bool endWIZMO;
-};
-
-IMPLEMENT_MODULE(FWIZMOPlugin, WIZMOPlugin)
-
-
-void FWIZMOPlugin::StartupModule()
+void FWIZMOPluginModule::StartupModule()
 {
 	isDllLoaded = false;
-	isOpen = false;
 
 	hLibrary = LoadLibrary(TEXT("wizmo.dll"));
 	if (hLibrary != NULL)
@@ -124,14 +92,16 @@ void FWIZMOPlugin::StartupModule()
 	}
 }
 
-void FWIZMOPlugin::ShutdownModule()
+void FWIZMOPluginModule::ShutdownModule()
 {
 	if (hLibrary != NULL) {
 		FreeLibrary(hLibrary);
 	}
+
+	isDllLoaded = false;
 }
 
-WIZMOHANDLE FWIZMOPlugin::Open(const char* appCode, const char* serialAssign)
+WIZMOHANDLE FWIZMOPluginModule::Open(const char* appCode, const char* serialAssign)
 {
 	if (!isDllLoaded)
 		return WIZMOHANDLE_ERROR;
@@ -144,7 +114,7 @@ WIZMOHANDLE FWIZMOPlugin::Open(const char* appCode, const char* serialAssign)
 	return handle;
 }
 
-void FWIZMOPlugin::Close(WIZMOHANDLE handle)
+void FWIZMOPluginModule::Close(WIZMOHANDLE handle)
 {
 	if (!isDllLoaded)
 		return;
@@ -152,7 +122,7 @@ void FWIZMOPlugin::Close(WIZMOHANDLE handle)
 	wizmoClose(handle);
 }
 
-void FWIZMOPlugin::UpdateBackLog()
+void FWIZMOPluginModule::UpdateBackLog()
 {
 	if (!isDllLoaded)
 		return;
@@ -172,7 +142,7 @@ void FWIZMOPlugin::UpdateBackLog()
 	}
 }
 
-void FWIZMOPlugin::UpdateWIZMO(WIZMOHANDLE handle, WIZMOPacket* data)
+void FWIZMOPluginModule::UpdateWIZMO(WIZMOHANDLE handle, WIZMOPacket* data)
 {
 	if (!isDllLoaded)
 		return;
@@ -183,42 +153,42 @@ void FWIZMOPlugin::UpdateWIZMO(WIZMOHANDLE handle, WIZMOPacket* data)
 	wizmoWrite(handle, data);
 }
 
-void FWIZMOPlugin::SetOriginMode(WIZMOHANDLE handle, bool value)
+void FWIZMOPluginModule::SetOriginMode(WIZMOHANDLE handle, bool value)
 {
 	if (!isDllLoaded)
 		return;
 	wizmoSetOriginMode(handle, value);
 }
 
-bool FWIZMOPlugin::GetOriginMode(WIZMOHANDLE handle)
+bool FWIZMOPluginModule::GetOriginMode(WIZMOHANDLE handle)
 {
 	if (!isDllLoaded)
 		return false;
 	return wizmoGetOriginMode(handle);
 }
 
-void FWIZMOPlugin::SetAxisProcessingMode(WIZMOHANDLE handle, bool value) 
+void FWIZMOPluginModule::SetAxisProcessingMode(WIZMOHANDLE handle, bool value)
 {
 	if (!isDllLoaded)
 		return;
 	wizmoSetAxisProcessingMode(handle, value);
 }
 
-bool FWIZMOPlugin::GetAxisProcessingMode(WIZMOHANDLE handle) 
+bool FWIZMOPluginModule::GetAxisProcessingMode(WIZMOHANDLE handle)
 {
 	if (!isDllLoaded)
 		return false;
 	return wizmoGetAxisProcessingMode(handle);
 }
 
-void FWIZMOPlugin::SetSpeedGainMode(WIZMOHANDLE handle, int value) 
+void FWIZMOPluginModule::SetSpeedGainMode(WIZMOHANDLE handle, int value)
 {
 	if (!isDllLoaded)
 		return;
 	wizmoSetSpeedGainMode(handle, value);
 }
 
-int FWIZMOPlugin::GetSpeedGainMode(WIZMOHANDLE handle) 
+int FWIZMOPluginModule::GetSpeedGainMode(WIZMOHANDLE handle)
 {
 	if (!isDllLoaded)
 		return false;
@@ -226,7 +196,7 @@ int FWIZMOPlugin::GetSpeedGainMode(WIZMOHANDLE handle)
 }
 
 
-const char* FWIZMOPlugin::GetAppCode(WIZMOHANDLE handle)
+const char* FWIZMOPluginModule::GetAppCode(WIZMOHANDLE handle)
 {
 	if (!isDllLoaded)
 		return NULL;
@@ -234,7 +204,7 @@ const char* FWIZMOPlugin::GetAppCode(WIZMOHANDLE handle)
 	return wizmoGetAppCode(handle);
 }
 
-const char* FWIZMOPlugin::GetWIZMOSerialNumber(WIZMOHANDLE handle)
+const char* FWIZMOPluginModule::GetWIZMOSerialNumber(WIZMOHANDLE handle)
 {
 	if (!isDllLoaded)
 		return NULL;
@@ -242,7 +212,7 @@ const char* FWIZMOPlugin::GetWIZMOSerialNumber(WIZMOHANDLE handle)
 	return wizmoGetSerialNumber(handle);
 }
 
-const char* FWIZMOPlugin::GetVersion(WIZMOHANDLE handle)
+const char* FWIZMOPluginModule::GetVersion(WIZMOHANDLE handle)
 {
 	if (!isDllLoaded)
 		return NULL;
@@ -250,7 +220,7 @@ const char* FWIZMOPlugin::GetVersion(WIZMOHANDLE handle)
 	return wizmoGetVersion(handle);
 }
 
-bool FWIZMOPlugin::IsRunning(WIZMOHANDLE handle)
+bool FWIZMOPluginModule::IsRunning(WIZMOHANDLE handle)
 {
 	if (!isDllLoaded)
 		return false;
@@ -258,7 +228,7 @@ bool FWIZMOPlugin::IsRunning(WIZMOHANDLE handle)
 	return wizmoIsRunning(handle);
 }
 
-int FWIZMOPlugin::GetState(WIZMOHANDLE handle)
+int FWIZMOPluginModule::GetState(WIZMOHANDLE handle)
 {
 	if (!isDllLoaded)
 		return WIZMOHANDLE_ERROR;
@@ -266,10 +236,14 @@ int FWIZMOPlugin::GetState(WIZMOHANDLE handle)
 	return wizmoGetState(handle);
 }
 
-int FWIZMOPlugin::GetStatusEXT4(WIZMOHANDLE handle)
+int FWIZMOPluginModule::GetStatusEXT4(WIZMOHANDLE handle)
 {
 	if (!isDllLoaded)
 		return WIZMOHANDLE_ERROR;
 
 	return wizmoGetStatusEXT4(handle);
 }
+
+#undef LOCTEXT_NAMESPACE
+	
+IMPLEMENT_MODULE(FWIZMOPluginModule, WIZMOPlugin)

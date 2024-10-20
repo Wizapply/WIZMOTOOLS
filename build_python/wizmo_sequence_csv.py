@@ -57,7 +57,7 @@ async def simvr_sequence(lock, work_data):
             if 'heave' in cur_data: simvr_variable['heave'] = float(cur_data['heave'])
             if 'sway' in cur_data:  simvr_variable['sway'] = float(cur_data['sway'])
             if 'surge' in cur_data: simvr_variable['surge'] = float(cur_data['surge'])
-            if 'is_origin' in cur_data: simvr_variable['is_origin'] = float(cur_data['is_origin'])
+            if 'is_origin' in cur_data: simvr_variable['is_origin'] = int(cur_data['is_origin'])
         # wait
         await aio.sleep(nexttime - 0.01)
 

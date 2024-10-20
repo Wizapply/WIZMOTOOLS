@@ -1,7 +1,5 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #include "WIZMOMover.h"
-#include "WIZMOPluginPrivatePCH.h"
+#include "WIZMOMover.h"
 
 class WIZMOMover_Status6DOF
 {

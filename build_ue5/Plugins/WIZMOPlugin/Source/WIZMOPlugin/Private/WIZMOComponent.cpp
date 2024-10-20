@@ -1,7 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #include "WIZMOComponent.h"
-#include "WIZMOPluginPrivatePCH.h"
 
 // Sets default values for this component's properties
 UWIZMOComponent::UWIZMOComponent()
@@ -62,9 +59,9 @@ void UWIZMOComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 // Called every frame
 void UWIZMOComponent::TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction )
 {
-	Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if(!isOpened)
+	if (!isOpened)
 		return;
 
 	WIZMOPacket p;
@@ -75,7 +72,7 @@ void UWIZMOComponent::TickComponent( float DeltaTime, ELevelTick TickType, FActo
 	p.sway = Sway;
 	p.surge = Surge;
 
-	p.speedAxis[0]= Speed;
+	p.speedAxis[0] = Speed;
 	p.speedAxis[1] = Speed2;
 	p.speedAxis[2] = Speed3;
 	p.speedAxis[3] = Speed4;
@@ -97,22 +94,23 @@ void UWIZMOComponent::TickComponent( float DeltaTime, ELevelTick TickType, FActo
 	p.commandSendCount = 0;
 
 	UpdateState();
-	
-	IWIZMOPlugin::Get().SetAxisProcessingMode(wizmoHandle, AxisProcessing);
-	IWIZMOPlugin::Get().SetOriginMode(wizmoHandle, isOrigined);
-	IWIZMOPlugin::Get().SetSpeedGainMode(wizmoHandle, (int)SpeedGainMode);
-	IWIZMOPlugin::Get().UpdateWIZMO(wizmoHandle, &p);
-	
-	IWIZMOPlugin::Get().UpdateBackLog();
+
+	wizmoPlugin->SetAxisProcessingMode(wizmoHandle, AxisProcessing);
+	wizmoPlugin->SetOriginMode(wizmoHandle, isOrigined);
+	wizmoPlugin->SetSpeedGainMode(wizmoHandle, (int)SpeedGainMode);
+	wizmoPlugin->UpdateWIZMO(wizmoHandle, &p);
+
+	wizmoPlugin->UpdateBackLog();
 }
 
 void UWIZMOComponent::UpdateState()
 {
-	int state_int = IWIZMOPlugin::Get().GetState(wizmoHandle);
+	int state_int = wizmoPlugin->GetState(wizmoHandle);
+
 	//UE_LOG(WIZMOLog, Log, TEXT("state_int=%d"), state_int);
 	if (state_int < 0)
 		return;
-	
+
 	// Error if less than Initial
 	EWIZMOState state = (EWIZMOState)state_int;
 	if (!IsRunning())
@@ -125,28 +123,34 @@ void UWIZMOComponent::UpdateState()
 			break;
 		case EWIZMOState::CanNotFindUsb:
 			output = "MachineNotDetected";
+			CloseWIZMO();
 			break;
 		case EWIZMOState::CanNotFindSimvr:
 			output = "InaccessibleToTheMachine";
+			CloseWIZMO();
 			break;
 		case EWIZMOState::CanNotCalibration:
 			output = "ZeroReturnFailure";
+			CloseWIZMO();
 			break;
 		case EWIZMOState::TimeoutCalibration:
 			output = "ErrorReturningToZero";
+			CloseWIZMO();
 			break;
 		case EWIZMOState::ShutDownActuator:
 			output = "ShutDown";
+			CloseWIZMO();
 			break;
 		case EWIZMOState::CanNotCertificate:
 			output = "AuthenticationFailure";
+			CloseWIZMO();
 			break;
 		case EWIZMOState::CalibrationRetry:
 			output = "InternalDisconnectionError";
+			CloseWIZMO();
 			break;
 		}
 		OnSystemEventCall.Broadcast(output);
-		CloseWIZMO();
 	}
 
 	//fail soft design
@@ -165,37 +169,38 @@ void UWIZMOComponent::OpenWIZMO()
 	if (isOpened)
 		return;
 
-	wizmoHandle = IWIZMOPlugin::Get().Open(TCHAR_TO_UTF8(*AppCode), TCHAR_TO_UTF8(*AssignNo));
-	if(wizmoHandle >= 0) {
+	wizmoHandle = wizmoPlugin->Open(TCHAR_TO_UTF8(*AppCode), TCHAR_TO_UTF8(*AssignNo));
+	if (wizmoHandle >= 0) {
 		isOpened = true;
 		stopActuatorTrigger = false;
 
-		IWIZMOPlugin::Get().SetAxisProcessingMode(wizmoHandle, AxisProcessing);
-		IWIZMOPlugin::Get().SetOriginMode(wizmoHandle, isOrigined);
-		IWIZMOPlugin::Get().SetSpeedGainMode(wizmoHandle, (int)SpeedGainMode);
+		wizmoPlugin->SetAxisProcessingMode(wizmoHandle, AxisProcessing);
+		wizmoPlugin->SetOriginMode(wizmoHandle, isOrigined);
+		wizmoPlugin->SetSpeedGainMode(wizmoHandle, (int)SpeedGainMode);
 	}
 }
 
 void UWIZMOComponent::CloseWIZMO()
 {
-	if(isOpened) {
-		IWIZMOPlugin::Get().Close(wizmoHandle);
-		IWIZMOPlugin::Get().UpdateBackLog();
+	if (isOpened) {
+		wizmoPlugin->Close(wizmoHandle);
+		wizmoPlugin->UpdateBackLog();
 		isOpened = false;
+		stopActuatorTrigger = false;
 	}
 }
 
 EWIZMOState UWIZMOComponent::GetState()
 {
-	return (EWIZMOState)IWIZMOPlugin::Get().GetState(wizmoHandle);
+	return (EWIZMOState)wizmoPlugin->GetState(wizmoHandle);
 }
 
 bool UWIZMOComponent::IsRunning()
 {
-	return IWIZMOPlugin::Get().IsRunning(wizmoHandle);
+	return wizmoPlugin->IsRunning(wizmoHandle);
 }
 
 FString UWIZMOComponent::SerialNumber()
 {
-	return IWIZMOPlugin::Get().GetWIZMOSerialNumber(wizmoHandle);
+	return wizmoPlugin->GetWIZMOSerialNumber(wizmoHandle);
 }

@@ -1,9 +1,8 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
-#include "Components/ActorComponent.h"
 #include "WIZMOComponent.h"
+
+#include "Components/ActorComponent.h"
 #include "WIZMOMover.generated.h"
 
 class WIZMOMover_Status6DOF;
