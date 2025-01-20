@@ -126,6 +126,7 @@ public:
 
 	int GetState();
 	int GetWIZMODevice();
+	int GetWIZMOStatus();
 	const char* GetVersion() const;
 	bool IsRunning() const;
 
