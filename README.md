@@ -45,7 +45,7 @@ WIZMOTOOLSは、WIZAPPLYのサポートが認定された多軸モーション�
 ![WizapplySS001](resources/screenshot_001.png)  
 
 ### 実行・セットアップ
-WIZMOTOOLSの使い方・セットアップについては、[**SIMVR-Tools Wiki**](https://github.com/Wizapply/SIMVR-Tools/wiki "SIMVR-Tools Wiki")にまとめておりますので、そちらをご覧ください。  
+WIZMOTOOLSの使い方・セットアップについては、[**WIZMOTOOLS Wiki**](https://github.com/Wizapply/WIZMOTOOLS/wiki "WIZMOTOOLS Wiki")にまとめておりますので、そちらをご覧ください。  
 ※改修予定
 
 ## 開発向けライセンスについて

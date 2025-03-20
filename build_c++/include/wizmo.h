@@ -81,7 +81,7 @@ typedef struct _simvr_data_packet
 //Default Packet
 WIZMODataPacket WIZMOPORT DefaultWIZMOPacket();
 
-#define WIZMO_SDKVERSION "4.71"
+#define WIZMO_SDKVERSION "4.90"
 
 struct Property;
 
@@ -96,13 +96,13 @@ public:
 	//Initialize
 	/*!	@brief Open the WIZMO System
 		@param appCode : Appication Code(Not a serial number)
-		@param assign : Serial Number Code*/
+		@param assign : Serial Number Code */
 	void Open(const char* appCode);
 	void Open(const char* appCode, const char* assign);
 	/*!	@brief Close the WIZMO System */
 	void Close();
-
-	//Write
+	/*!	@brief WIZMO Packet transmission
+	    @param packet : WIZMO Packet */
 	int Write(const WIZMODataPacket* packet);
 
 	//Callback
@@ -140,7 +140,9 @@ private:
 
 	void LANStart();
 	void LANStop();
+	bool LANSelect(const char* deviceName, const char* serialNumber);
 	void LANUpdate(WIZMODataPacket& packet);
+	void LANUpdateKV(WIZMODataPacket& packet);
 
 	Property* property;
 };

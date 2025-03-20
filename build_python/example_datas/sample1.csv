@@ -1,4 +1,4 @@
-time,roll,pitch,yaw,sway,surge,sway,speed,accel,is_origin
+time,roll,pitch,yaw,heave,surge,sway,speed,accel,is_origin
 0.1,0.099334665,0,0,0,0,0,0.4,0.05,0
 0.2,0.194709171,0,0,0,0,0,0.4,0.05,0
 0.3,0.282321237,0,0,0,0,0,0.4,0.05,0
