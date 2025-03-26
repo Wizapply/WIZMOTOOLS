@@ -14,8 +14,9 @@ WIZMOTOOLSは、WIZAPPLYのサポートが認定された多軸モーション�
 ## WIZMO対応シミュレータ
 * SIMVR製品ページ ： <https://motion.wizapply.com/simvr/>
 * SIMVR 6DOF製品ページ： <https://motion.wizapply.com/simvr6dof/>
+* SIMVR MASSIVE製品ページ： <https://motion.wizapply.com/massive/>
 * ANTSEAT製品ページ： <https://motion.wizapply.com/antseat/>
-* DRiVe-X製品ページ： <https://drivex-sim.com/>
+* DRiVe-X製品ページ(システム別売)： <https://drivex-sim.com/>
 
 ## フォルダ構成
 * `/build_c++` : C++(VisualStudio, CMAKE)で開発可能なファイル
