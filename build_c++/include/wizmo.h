@@ -1,6 +1,6 @@
 ﻿/**************************************************************************
 *
-*              Copyright (c) 2014-2024 by Wizapply.
+*              Copyright (c) 2014-2025 by WIZAPPLY.
 *
 *  This software is copyrighted by and is the sole property of Wizapply
 *  All rights, title, ownership, or other interests in the software
@@ -15,7 +15,7 @@
 *  Wizpply reserves the right to modify this software without notice.
 *  Unity : TM & Copyright Unity Technologies. All Rights Reserved
 *
-*  Wizapply                                info@wizapply.com
+*  WIZAPPLY CO.,LTD.                       info@wizapply.com
 *  5F, KS Building,                        https://wizapply.com
 *  3-7-10 Ichiokamotomachi, Minato-ku,
 *  Osaka, 552-0002, Japan
@@ -78,13 +78,12 @@ typedef struct _simvr_data_packet
 	#define WIZMOPORT
 #endif	/*LINUX*/
 
+#define WIZMO_SDKVERSION "4.91"
+
 //Default Packet
 WIZMODataPacket WIZMOPORT DefaultWIZMOPacket();
 
-#define WIZMO_SDKVERSION "4.90"
-
 struct Property;
-
 class WIZMOPORT WIZMO
 {
 public:
@@ -144,7 +143,7 @@ private:
 	void LANUpdate(WIZMODataPacket& packet);
 	void LANUpdateKV(WIZMODataPacket& packet);
 
-	Property* property;
+	struct Property* property;
 };
 
 }

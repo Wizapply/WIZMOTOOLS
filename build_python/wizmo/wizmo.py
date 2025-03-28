@@ -25,6 +25,16 @@ class wizmoSpeedGain(IntEnum):
     Variable = 1
     Manual = 2
 
+class wizmoDevice(IntEnum):
+    NONE = 0
+    SIMVR4DOF = 1
+    SIMVR6DOF = 2
+    SIMVR6DOF_MASSIVE = 3
+    DRIVE_X = 4
+    ANTSEAT = 5
+    SIMVRMASSIVE_KV = 6
+    SIMVR2DOF_KV = 7
+
 # WIZMO Data Packet
 class wizmoPacket(Structure):  
     _fields_ = [  
@@ -272,3 +282,6 @@ class wizmo():
             return self.wizmolib.wizmoGetSpeedGainMode(self.wizmoHandle)
         else:
             self.wizmolib.wizmoSetSpeedGainMode(self.wizmoHandle, int(value))
+
+    def get_device_name(self) -> wizmoDevice:
+        return self.wizmolib.wizmoGetDevice(self.wizmoHandle)

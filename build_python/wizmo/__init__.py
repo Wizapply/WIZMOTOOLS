@@ -2,4 +2,4 @@
 # (C) WIZAPPLY CO., LTD. <info@wizapply.com>
 
 from wizmo.wizmo import *
-__version__ = '4.71'
+__version__ = '4.91'
