@@ -25,6 +25,8 @@
 #ifndef __WIZMO__
 #define __WIZMO__
 
+#include "wizmo_state.h"
+
 namespace WIZMOSDK {
 
 #ifndef __WIZMO_DATAPACKET__
@@ -32,29 +34,27 @@ namespace WIZMOSDK {
 
 const int WIZMODATA_AXIS_SIZE = 6;
 
-//! WIZMO Data packet
+//WIZMO Data packet（データパケット）
 typedef struct _simvr_data_packet
 {
-	//Axis position controls
-	float axis[WIZMODATA_AXIS_SIZE];
-
-	//Axis speed/accel controls
-	float speedAxis[WIZMODATA_AXIS_SIZE];
-	float accelAxis;
-
-	//Axis Processing
-	float roll;
-	float pitch;
-	float yaw;
-	float heave;
-	float sway;
-	float surge;
-
-	float rotationMotionRatio;
-	float gravityMotionRatio;
-
-	int commandSendCount;
-	char command[256];
+	//軸オペレーション
+	float axis[WIZMODATA_AXIS_SIZE];		//軸位置[配列]:0.0～1.0
+	//軸速度・加速度オペレーション
+	float speedAxis[WIZMODATA_AXIS_SIZE];	//軸速度[配列]:0.0～1.0
+	float accelAxis;						//軸加速度レート:0.0～1.0
+	//軸プロセッシング
+	float roll;								//ロール:-1.0～1.0
+	float pitch;							//ピッチ:-1.0～1.0
+	float yaw;								//ヨー:-1.0～1.0
+	float heave;							//ヒーブ:-1.0～1.0
+	float sway;								//スウェイ:-1.0～1.0
+	float surge;							//サージ:-1.0～1.0
+	//レシオ
+	float rotationMotionRatio;				//回転モーション比率:0.0～1.0
+	float gravityMotionRatio;				//Gモーション比率:0.0～1.0
+	//コマンド
+	int commandSendCount;					//コマンド送信回数
+	char command[256];						//コマンド送信文字列
 
 } WIZMODataPacket;
 
@@ -78,6 +78,7 @@ typedef struct _simvr_data_packet
 	#define WIZMOPORT
 #endif	/*LINUX*/
 
+//バージョン
 #define WIZMO_SDKVERSION "4.91"
 
 //Default Packet
@@ -87,48 +88,61 @@ struct Property;
 class WIZMOPORT WIZMO
 {
 public:
-	//!Constructor
+	//コンストラクタ・デストラクタ
 	WIZMO();
-	//!Destructor
 	~WIZMO();
 
-	//Initialize
-	/*!	@brief Open the WIZMO System
-		@param appCode : Appication Code(Not a serial number)
-		@param assign : Serial Number Code */
+	//メインメソッド
+	//WIZMOをオープンし動作可能モード
+	//@appCode = アプリコード
+	//@assign = シリアル番号でデバイスを指定
 	void Open(const char* appCode);
 	void Open(const char* appCode, const char* assign);
-	/*!	@brief Close the WIZMO System */
+	//WIZMOを閉じる
 	void Close();
-	/*!	@brief WIZMO Packet transmission
-	    @param packet : WIZMO Packet */
+	//アクチュエータ制御にパケットの書き込み送信
+	//@packet = パケット
 	int Write(const WIZMODataPacket* packet);
 
-	//Callback
+	//コールバック関数メソッド
+	//@func = 呼び出す関数
 	void SetCallbackUpdateFunction(void(*func)());
 
-	//Properties
+	//プロパティ
+	//乗降モード設定
+	//@value = モードON or OFF
 	void SetOriginMode(bool value);
+	//現在の乗降モード取得
 	bool GetOriginMode();
-
+	//軸プロセスモード設定（自動計算）
+	//@value = モードON or OFF
 	void SetAxisProcessingMode(bool value);
+	//現在の軸プロセスモードを取得
 	bool GetAxisProcessingMode();
 
-	static const int SPEEDGAIN_MODE_NORMAL = 0;
-	static const int SPEEDGAIN_MODE_VARIABLE = 1;
-	static const int SPEEDGAIN_MODE_MANUAL = 2;
-	void SetSpeedGainMode(int speedGain_value);
-	int GetSpeedGainMode();
+	//速度ゲインモード設定
+	//@value = ゲインモード一覧(WIZMOSpeedGain)
+	void SetSpeedGainMode(WIZMOSpeedGain value);
+	//現在の速度ゲインモードを取得
+	WIZMOSpeedGain GetSpeedGainMode();
 
+	//現在接続されているアプリコードを取得
 	const char* GetAppCode() const;
+	//現在接続されているシリアル番号を取得
 	const char* GetWIZMOSerialNumber() const;
-
-	int GetState();
-	int GetWIZMODevice();
-	int GetWIZMOStatus();
+	
+	//デバイスの状態を取得
+	State GetState();
+	//ライブラリが動作中かどうか
+	bool GetWIZMOStatus();
+	//接続されているデバイスの種類を取得
+	WIZMODevice GetWIZMODevice();
+	//ライブラリのバージョンを取得
 	const char* GetVersion() const;
+	//デバイスが動作中かどうかを返す
 	bool IsRunning() const;
 
+	//外部データを取得
 	int GetStatusEXT4() const;
 
 private:
@@ -148,4 +162,4 @@ private:
 
 }
 
-#endif
+#endif /*__WIZMO__*/

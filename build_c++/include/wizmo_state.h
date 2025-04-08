@@ -29,17 +29,17 @@ namespace WIZMOSDK {
 	//State List
 	enum class State
 	{
-		CanNotFindUsb = 0,
-		CanNotFindWizmo,
-		CanNotCalibration,
-		TimeoutCalibration,
-		ShutDownActuator,
-		CanNotCertificate,
+		CanNotFindUsb = 0,			//未接続
+		CanNotFindWizmo,			//未接続
+		CanNotCalibration,			//キャリブレーション起動失敗
+		TimeoutCalibration,			//キャリブレーション中の失敗
+		ShutDownActuator,			//アクチュエータ停止
+		CanNotCertificate,			//認証失敗
 
-		Initial,
-		Running,
-		StopActuator,
-		CalibrationRetry,
+		Initial,					//初期状態
+		Running,					//動作中
+		StopActuator,				//アクチュエータ一部停止
+		CalibrationRetry,			//キャリブレーション再設定
 	};
 
 	//Deivce List
@@ -52,6 +52,13 @@ namespace WIZMOSDK {
 		ANTSEAT,
 		SIMVRMASSIVE_KV,
 		SIMVR2DOF_KV,
+	};
+
+	//ゲインモード一覧
+	enum class WIZMOSpeedGain {
+		SPEEDGAIN_MODE_NORMAL = 0,	//ノーマル速度ゲイン（全軸固定速度設定）
+		SPEEDGAIN_MODE_VARIABLE,	//可変速度ゲイン（追従速度モード）
+		SPEEDGAIN_MODE_MANUAL,		//マニュアル速度ゲイン（軸別の速度設定）
 	};
 
 }
