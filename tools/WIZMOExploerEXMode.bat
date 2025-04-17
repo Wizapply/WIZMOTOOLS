@@ -1,0 +1,1 @@
+WIZMOExplorer.exe --ExpansionRatioMode
