@@ -52,6 +52,7 @@ namespace WIZMOSDK {
 		ANTSEAT,
 		SIMVRMASSIVE_KV,
 		SIMVR2DOF_KV,
+		SIMVR2DOF,
 	};
 
 	//ƒQƒCƒ“ƒ‚[ƒhˆê——

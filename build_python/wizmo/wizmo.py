@@ -94,6 +94,13 @@ class wizmo():
     
     m_wizmolib = None
 
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+        return False
+
     def __init__(self, verbose:bool=False):
         os_name = platform.system()
         arch_is64bit = platform.architecture()[0] == '64bit'
@@ -266,19 +273,19 @@ class wizmo():
         self.wizmolib.wizmoWrite(self.wizmoHandle, pointer(packet))
 
     def axis_processing_mode(self, value:bool=None):
-        if value==None:
+        if value is None:
             return self.wizmolib.wizmoGetAxisProcessingMode(self.wizmoHandle)
         else:
             self.wizmolib.wizmoSetAxisProcessingMode(self.wizmoHandle, value)
     
     def origin_mode(self, value:bool=None):
-        if value==None:
+        if value is None:
             return self.wizmolib.wizmoGetOriginMode(self.wizmoHandle)
         else:
             self.wizmolib.wizmoSetOriginMode(self.wizmoHandle, value)
 
     def speed_gain_mode(self, value:wizmoSpeedGain=None):
-        if value==None:
+        if value is None:
             return self.wizmolib.wizmoGetSpeedGainMode(self.wizmoHandle)
         else:
             self.wizmolib.wizmoSetSpeedGainMode(self.wizmoHandle, int(value))
