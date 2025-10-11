@@ -34,6 +34,7 @@ class wizmoDevice(IntEnum):
     ANTSEAT = 5
     SIMVRMASSIVE_KV = 6
     SIMVR2DOF_KV = 7
+    SIMVR2DOF = 8
 
 # WIZMO Data Packet
 class wizmoPacket(Structure):  
@@ -91,7 +92,7 @@ class wizmoPacket(Structure):
 
 # Main Class
 class wizmo():
-    
+
     m_wizmolib = None
 
     def __enter__(self):
@@ -128,7 +129,10 @@ class wizmo():
                 else: libloadpath += '/libwizmo32.so'
         
         if wizmo.m_wizmolib is None:
-            wizmo.m_wizmolib = cdll.LoadLibrary(libloadpath)
+            try:
+                wizmo.m_wizmolib = cdll.LoadLibrary(libloadpath)
+            except OSError as e:
+                raise RuntimeError(f"WIZMO Load Library Error:{libloadpath}") from e
 
         self.wizmolib = wizmo.m_wizmolib
         self.verbose = verbose
@@ -143,7 +147,7 @@ class wizmo():
     @staticmethod
     def get_backlog(printing:bool=False):
         buf_res = ''
-        size = wizmo.m_wizmolib.wizmoBackLogDataAvailable();
+        size = wizmo.m_wizmolib.wizmoBackLogDataAvailable()
         if(size > 0) :
             p = create_string_buffer(size)
             iRef = wizmo.m_wizmolib.wizmoGetBackLog(p, size)
@@ -190,7 +194,7 @@ class wizmo():
 
         return self.wizmoHandle
 
-    def close(self):
+    def close(self) -> None:
         if self.wizmoHandle == WIZMO_HANDLE_ERROR:
             if self.verbose: print("WIZMO IS NOT OPEN.")
             return
@@ -198,7 +202,7 @@ class wizmo():
         self.wizmolib.wizmoClose(self.wizmoHandle)
         self.wizmoHandle = WIZMO_HANDLE_ERROR
 
-    def get_status(self):
+    def get_status(self) -> int:
         return self.wizmolib.wizmoGetState(self.wizmoHandle)
 
     def is_running(self) -> bool:
