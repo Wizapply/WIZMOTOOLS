@@ -42,7 +42,7 @@ WIZMOSDK::WIZMO* g_pWIZMOSystem = NULL;
 
 void simvrUpdateBackLog() {
 
-	if (g_pWIZMOSystem == NULL)
+	if (system == NULL)
 		return;
 
 	char logbuffer[WIZMOSDK::Debug::WIZMOLOG_MAXCOUNT];
@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
 	g_pWIZMOSystem->SetOriginMode(false);
 	g_pWIZMOSystem->SetAxisProcessingMode(true);	//Axis mode
 
-	g_pWIZMOSystem->SetSpeedGainMode(WIZMOSDK::WIZMO::SPEEDGAIN_MODE_NORMAL);
+	g_pWIZMOSystem->SetSpeedGainMode(WIZMOSDK::WIZMOSpeedGain::SPEEDGAIN_MODE_NORMAL);
 
 	auto packet = WIZMOSDK::DefaultWIZMOPacket();
 
@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
 		if (input == "exit") break;
 
 		auto d = static_cast<float>(atof(input.c_str()));
-		packet.roll = d;
+		packet.roll = 0.0;
 
 		//PITCH
 		std::cout << "PITCH -> ";
@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
 		if (input == "exit") break;
 
 		d = static_cast<float>(atof(input.c_str()));
-		packet.pitch = d;
+		packet.pitch = 0.0;
 
 		//YAW
 		std::cout << "YAW -> ";
@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
 		if (input == "exit") break;
 
 		d = static_cast<float>(atof(input.c_str()));
-		packet.yaw = d;
+		packet.yaw = 0.0;
 
 		g_pWIZMOSystem->SetOriginMode(false);
 		g_pWIZMOSystem->Write(&packet);
