@@ -56,7 +56,7 @@ except Exception as e:
     exit(1)
 
 # 初期化完了待ち
-timeout = 5.0
+timeout = 20.0
 start_wait = time.time()
 
 while wm.get_status() == wizmo.wizmoStatus.Initial:
@@ -130,13 +130,14 @@ def stop_program(e):
 keyboard.on_press_key("space", toggle_recording)
 keyboard.on_press_key("esc", stop_program)
 
-print("Press SPACE to start/pause recording. Press ESC to exit.")
+print("Press SPACE or Left Button to start/pause recording. Press ESC to exit.")
 
 # -----------------------------
 # メインループ
 # -----------------------------
 WRITE_INTERVAL = 1.0 / 100.0
 last_write = time.time()
+prev_buttons = 0
 
 while running:
     data = h.read(64)
@@ -161,6 +162,17 @@ while running:
             sixdof["pitch"] = normalize(rx)
             sixdof["roll"]  = -normalize(ry)# 逆のため変換
             sixdof["yaw"]   = normalize(rz)
+
+        elif report_id == 3:
+            buttons = data[1]
+            button_left  = buttons & 0x01
+            button_right = (buttons >> 1) & 0x01
+            
+            # 左ボタンの立ち上がり検出（0→1）
+            if button_left and not (prev_buttons & 0x01):
+                toggle_recording(None)  # SPACEキーと同じ動作
+            
+            prev_buttons = buttons
 
     now = time.time()
 
