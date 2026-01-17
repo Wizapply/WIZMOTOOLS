@@ -87,13 +87,13 @@ class wizmoPacket(Structure):
         self.sway = 0.0
         self.surge = 0.0
         self.rotationMotionRatio = 1.0
-        self.gravityMotionRatio = 1.0
+        self.gravityMotionRatio = 0.0
         self.commandSendCount = 0 
 
 # Main Class
 class wizmo():
 
-    m_wizmolib = None
+    _wizmo_lib = None
 
     def __enter__(self):
         return self
@@ -105,9 +105,9 @@ class wizmo():
     def __init__(self, verbose:bool=False):
         os_name = platform.system()
         arch_is64bit = platform.architecture()[0] == '64bit'
-        arch_isRPi = False
+        arch_isARM = False
         if 'armv' in platform.machine() or 'aarch64' in platform.machine():
-            arch_isRPi = True
+            arch_isARM = True
         
         #For pyinstaller build
         if getattr(sys, 'frozen', False):
@@ -117,24 +117,28 @@ class wizmo():
             
         if os_name == 'Windows':
             if arch_is64bit:
-                libloadpath += '\\wizmo.dll'
+                if arch_isARM:
+                    libloadpath += '\\wizmoARM64.dll'
+                else:
+                    libloadpath += '\\wizmo.dll'
             else:
                 libloadpath += '\\wizmo32.dll'
+            
         else:
-            if arch_isRPi:
+            if arch_isARM:
                 if arch_is64bit: libloadpath += '/libwizmoRPi64.so'
                 else: libloadpath += '/libwizmoRPi32.so'
             else:
                 if arch_is64bit: libloadpath += '/libwizmo.so'
                 else: libloadpath += '/libwizmo32.so'
         
-        if wizmo.m_wizmolib is None:
+        if wizmo._wizmo_lib is None:
             try:
-                wizmo.m_wizmolib = cdll.LoadLibrary(libloadpath)
+                wizmo._wizmo_lib = cdll.LoadLibrary(libloadpath)
             except OSError as e:
                 raise RuntimeError(f"WIZMO Load Library Error:{libloadpath}") from e
 
-        self.wizmolib = wizmo.m_wizmolib
+        self.wizmolib = wizmo._wizmo_lib
         self.verbose = verbose
         self.simplePacket = wizmoPacket()
         self.wizmoHandle = WIZMO_HANDLE_ERROR
@@ -147,10 +151,10 @@ class wizmo():
     @staticmethod
     def get_backlog(printing:bool=False):
         buf_res = ''
-        size = wizmo.m_wizmolib.wizmoBackLogDataAvailable()
+        size = wizmo._wizmo_lib.wizmoBackLogDataAvailable()
         if(size > 0) :
             p = create_string_buffer(size)
-            iRef = wizmo.m_wizmolib.wizmoGetBackLog(p, size)
+            iRef = wizmo._wizmo_lib.wizmoGetBackLog(p, size)
             if iRef > 0:
                 bufferString = p.value.decode()
                 buf_res += bufferString.rstrip("\n")
@@ -208,7 +212,7 @@ class wizmo():
     def is_running(self) -> bool:
         return bool(self.wizmolib.wizmoIsRunning(self.wizmoHandle))
 
-    def simple_pose_update(self, roll:float, pitch:float, yaw:float, heave:float, sway:float, surge:float):
+    def simple_pose_update(self, roll:float, pitch:float, yaw:float, heave:float, sway:float, surge:float) -> None:
         if self.wizmoHandle == WIZMO_HANDLE_ERROR:
             return
 
@@ -224,7 +228,7 @@ class wizmo():
         if self.wizmoHandle == WIZMO_HANDLE_ERROR:
             return
 
-        if len(value) < 6:
+        if len(value) != 6:
             if self.verbose: print("ERROR TUPLE FORMAT.")
             return
 
