@@ -1,6 +1,6 @@
 /**************************************************************************
 *
-*              Copyright (c) 2014-2024 by Wizapply.
+*              Copyright (c) 2014-2026 by WIZAPPLY.
 *
 *  This software is copyrighted by and is the sole property of Wizapply
 *  All rights, title, ownership, or other interests in the software
@@ -15,7 +15,7 @@
 *  Wizpply reserves the right to modify this software without notice.
 *  Unity : TM & Copyright Unity Technologies. All Rights Reserved
 *
-*  Wizapply                                info@wizapply.com
+*  WIZAPPLY CO.,LTD.                       info@wizapply.com
 *  5F, KS Building,                        https://wizapply.com
 *  3-7-10 Ichiokamotomachi, Minato-ku,
 *  Osaka, 552-0002, Japan
@@ -25,13 +25,13 @@
 #pragma once
 #include <string>
 
-#ifdef WIN32
+#ifdef WINDOWS
 	#ifdef _WIZMO_EXPORTS
     #define WIZMOPORT __declspec(dllexport)
     #else
 	#define WIZMOPORT __declspec(dllimport)
     #endif
-#endif /*WIN32*/
+#endif /*WINDOWS*/
 
 #ifdef MACOSX
 	#define WIZMOPORT 

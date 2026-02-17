@@ -1,6 +1,6 @@
 ﻿/**************************************************************************
 *
-*              Copyright (c) 2014-2025 by WIZAPPLY.
+*              Copyright (c) 2014-2026 by WIZAPPLY.
 *
 *  This software is copyrighted by and is the sole property of Wizapply
 *  All rights, title, ownership, or other interests in the software
@@ -62,13 +62,13 @@ typedef struct _simvr_data_packet
 
 /////////// VARS AND DEFS ///////////
 
-#ifdef WIN32
+#ifdef WINDOWS
 	#ifdef _WIZMO_EXPORTS
     #define WIZMOPORT __declspec(dllexport)
     #else
 	#define WIZMOPORT __declspec(dllimport)
     #endif
-#endif /*WIN32*/
+#endif /*WINDOWS*/
 
 #ifdef MACOSX
 	#define WIZMOPORT 
@@ -79,7 +79,7 @@ typedef struct _simvr_data_packet
 #endif	/*LINUX*/
 
 //バージョン
-#define WIZMO_SDKVERSION "4.91"
+#define WIZMO_SDKVERSION "4.92"
 
 //Default Packet
 WIZMODataPacket WIZMOPORT DefaultWIZMOPacket();
@@ -114,11 +114,11 @@ public:
 	void SetOriginMode(bool value);
 	//現在の乗降モード取得
 	bool GetOriginMode();
-	//軸プロセスモード設定（自動計算）
+	//軸プロセスモード設定（姿勢計算モード）
 	//@value = モードON or OFF
-	void SetAxisProcessingMode(bool value);
+	void SetAxisProcessingMode(WIZMOAxisMode value);
 	//現在の軸プロセスモードを取得
-	bool GetAxisProcessingMode();
+	WIZMOAxisMode GetAxisProcessingMode();
 
 	//速度ゲインモード設定
 	//@value = ゲインモード一覧(WIZMOSpeedGain)

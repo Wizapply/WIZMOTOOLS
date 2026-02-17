@@ -68,8 +68,7 @@ int main(int argc, char *argv[])
 	simvrUpdateBackLog();
 
 	g_pWIZMOSystem->SetOriginMode(false);
-	g_pWIZMOSystem->SetAxisProcessingMode(true);	//Axis mode
-
+	g_pWIZMOSystem->SetAxisProcessingMode(WIZMOSDK::WIZMOAxisMode::AXIS_MODE_GLOBALPOSE);	//Axis mode
 	g_pWIZMOSystem->SetSpeedGainMode(WIZMOSDK::WIZMOSpeedGain::SPEEDGAIN_MODE_NORMAL);
 
 	auto packet = WIZMOSDK::DefaultWIZMOPacket();

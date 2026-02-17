@@ -25,6 +25,11 @@ class wizmoSpeedGain(IntEnum):
     Variable = 1
     Manual = 2
 
+class wizmoAxisMode(IntEnum):
+    Manual = 0
+    Global = 1
+    Local = 2
+
 class wizmoDevice(IntEnum):
     NONE = 0
     SIMVR4DOF = 1
@@ -35,6 +40,7 @@ class wizmoDevice(IntEnum):
     SIMVRMASSIVE_KV = 6
     SIMVR2DOF_KV = 7
     SIMVR2DOF = 8
+    SIMVRKICKBOARD_KV = 9
 
 # WIZMO Data Packet
 class wizmoPacket(Structure):  
@@ -280,11 +286,11 @@ class wizmo():
 
         self.wizmolib.wizmoWrite(self.wizmoHandle, pointer(packet))
 
-    def axis_processing_mode(self, value:bool=None):
+    def axis_processing_mode(self, value:wizmoAxisMode=None):
         if value is None:
             return self.wizmolib.wizmoGetAxisProcessingMode(self.wizmoHandle)
         else:
-            self.wizmolib.wizmoSetAxisProcessingMode(self.wizmoHandle, value)
+            self.wizmolib.wizmoSetAxisProcessingMode(self.wizmoHandle, int(value))
     
     def origin_mode(self, value:bool=None):
         if value is None:
