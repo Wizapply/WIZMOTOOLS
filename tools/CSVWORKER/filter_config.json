@@ -1,0 +1,52 @@
+{
+  "description": "SIVMRフィルタおよび正規化設定ファイル",
+  "filter_settings": {
+    "sample_rate": 100,
+    "filters": {
+      "heave": {
+        "type": "LOW_PASS",
+        "cutoff": 2.55,
+        "normalization": 3.3
+      },
+      "sway": {
+        "type": "LOW_PASS",
+        "cutoff": 2.55,
+        "normalization": 3.3
+      },
+      "surge": {
+        "type": "LOW_PASS",
+        "cutoff": 2.55,
+        "normalization": 3.3
+      },
+      "roll": {
+        "type": "LOW_PASS",
+        "cutoff": 1.25,
+        "normalization": 20.0,
+        "is_radian": false
+      },
+      "pitch": {
+        "type": "LOW_PASS",
+        "cutoff": 1.25,
+        "normalization": 20.0,
+        "is_radian": false
+      },
+      "yaw": {
+        "type": "LOW_PASS",
+        "cutoff": 1.25,
+        "normalization": 20.0,
+        "is_radian": false
+      }
+    }
+  },
+  "motion_ratio": {
+    "rotation": 1.0,
+    "gravity": 0.0
+  },
+  "gain_mode": {
+    "variable_mode": true
+  },
+  "smoothing": {
+    "enabled": true,
+    "buffer_size": 3
+  }
+}
