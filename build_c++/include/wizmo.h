@@ -1,6 +1,6 @@
-ï»¿/**************************************************************************
+/**************************************************************************
 *
-*              Copyright (c) 2014-2026 by WIZAPPLY.
+*              Copyright (c) WIZAPPLY.
 *
 *  This software is copyrighted by and is the sole property of Wizapply
 *  All rights, title, ownership, or other interests in the software
@@ -34,27 +34,32 @@ namespace WIZMOSDK {
 
 const int WIZMODATA_AXIS_SIZE = 6;
 
-//WIZMO Data packetï¼ˆãƒ‡ãƒ¼ã‚¿ãƒ‘ã‚±ãƒƒãƒˆï¼‰
+//WIZMO Data packetiƒf[ƒ^ƒpƒPƒbƒgj
 typedef struct _simvr_data_packet
 {
-	//è»¸ã‚ªãƒšãƒ¬ãƒ¼ã‚·ãƒ§ãƒ³
-	float axis[WIZMODATA_AXIS_SIZE];		//è»¸ä½ç½®[é…åˆ—]:0.0ï½1.0
-	//è»¸é€Ÿåº¦ãƒ»åŠ é€Ÿåº¦ã‚ªãƒšãƒ¬ãƒ¼ã‚·ãƒ§ãƒ³
-	float speedAxis[WIZMODATA_AXIS_SIZE];	//è»¸é€Ÿåº¦[é…åˆ—]:0.0ï½1.0
-	float accelAxis;						//è»¸åŠ é€Ÿåº¦ãƒ¬ãƒ¼ãƒˆ:0.0ï½1.0
-	//è»¸ãƒ—ãƒ­ã‚»ãƒƒã‚·ãƒ³ã‚°
-	float roll;								//ãƒ­ãƒ¼ãƒ«:-1.0ï½1.0
-	float pitch;							//ãƒ”ãƒƒãƒ:-1.0ï½1.0
-	float yaw;								//ãƒ¨ãƒ¼:-1.0ï½1.0
-	float heave;							//ãƒ’ãƒ¼ãƒ–:-1.0ï½1.0
-	float sway;								//ã‚¹ã‚¦ã‚§ã‚¤:-1.0ï½1.0
-	float surge;							//ã‚µãƒ¼ã‚¸:-1.0ï½1.0
-	//ãƒ¬ã‚·ã‚ª
-	float rotationMotionRatio;				//å›è»¢ãƒ¢ãƒ¼ã‚·ãƒ§ãƒ³æ¯”ç‡:0.0ï½1.0
-	float gravityMotionRatio;				//Gãƒ¢ãƒ¼ã‚·ãƒ§ãƒ³æ¯”ç‡:0.0ï½1.0
-	//ã‚³ãƒãƒ³ãƒ‰
-	int commandSendCount;					//ã‚³ãƒãƒ³ãƒ‰é€ä¿¡å›æ•°
-	char command[256];						//ã‚³ãƒãƒ³ãƒ‰é€ä¿¡æ–‡å­—åˆ—
+	//²ƒIƒyƒŒ[ƒVƒ‡ƒ“
+	float axis[WIZMODATA_AXIS_SIZE];		//²ˆÊ’u[”z—ñ]:0.0`1.0
+	//²‘¬“xE‰Á‘¬“xƒIƒyƒŒ[ƒVƒ‡ƒ“
+	float speedAxis[WIZMODATA_AXIS_SIZE];	//²‘¬“x[”z—ñ]:0.0`1.0
+	float accelAxis;						//²‰Á‘¬“xƒŒ[ƒg:0.0`1.0
+	//²ƒvƒƒZƒbƒVƒ“ƒO
+	float roll;								//ƒ[ƒ‹:-1.0`1.0
+	float pitch;							//ƒsƒbƒ`:-1.0`1.0
+	float yaw;								//ƒˆ[:-1.0`1.0
+	float heave;							//ƒq[ƒu:-1.0`1.0
+	float sway;								//ƒXƒEƒFƒC:-1.0`1.0
+	float surge;							//ƒT[ƒW:-1.0`1.0
+
+	float pivotX;							//MASSIVE ²ƒsƒ{ƒbƒgX(mm)
+	float pivotY;							//MASSIVE ²ƒsƒ{ƒbƒgY(mm)
+	float pivotZ;							//MASSIVE ²ƒsƒ{ƒbƒgZ(mm)
+
+	//ƒŒƒVƒI
+	float rotationMotionRatio;				//‰ñ“]ƒ‚[ƒVƒ‡ƒ“”ä—¦:0.0`1.0
+	float gravityMotionRatio;				//Gƒ‚[ƒVƒ‡ƒ“”ä—¦:0.0`1.0
+	//ƒRƒ}ƒ“ƒh
+	int commandSendCount;					//ƒRƒ}ƒ“ƒh‘—M‰ñ”
+	char command[256];						//ƒRƒ}ƒ“ƒh‘—M•¶š—ñ
 
 } WIZMODataPacket;
 
@@ -78,8 +83,8 @@ typedef struct _simvr_data_packet
 	#define WIZMOPORT
 #endif	/*LINUX*/
 
-//ãƒãƒ¼ã‚¸ãƒ§ãƒ³
-#define WIZMO_SDKVERSION "4.92"
+//ƒo[ƒWƒ‡ƒ“
+#define WIZMO_SDKVERSION "5.00"
 
 //Default Packet
 WIZMODataPacket WIZMOPORT DefaultWIZMOPacket();
@@ -88,74 +93,69 @@ struct Property;
 class WIZMOPORT WIZMO
 {
 public:
-	//ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ãƒ»ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
+	//ƒRƒ“ƒXƒgƒ‰ƒNƒ^EƒfƒXƒgƒ‰ƒNƒ^
 	WIZMO();
 	~WIZMO();
 
-	//ãƒ¡ã‚¤ãƒ³ãƒ¡ã‚½ãƒƒãƒ‰
-	//WIZMOã‚’ã‚ªãƒ¼ãƒ—ãƒ³ã—å‹•ä½œå¯èƒ½ãƒ¢ãƒ¼ãƒ‰
-	//@appCode = ã‚¢ãƒ—ãƒªã‚³ãƒ¼ãƒ‰
-	//@assign = ã‚·ãƒªã‚¢ãƒ«ç•ªå·ã§ãƒ‡ãƒã‚¤ã‚¹ã‚’æŒ‡å®š
+	//ƒƒCƒ“ƒƒ\ƒbƒh
+	//WIZMO‚ğƒI[ƒvƒ“‚µ“®ì‰Â”\ƒ‚[ƒh
+	//@appCode = ƒAƒvƒŠƒR[ƒh
+	//@assign = ƒVƒŠƒAƒ‹”Ô†‚ÅƒfƒoƒCƒX‚ğw’è
 	void Open(const char* appCode);
 	void Open(const char* appCode, const char* assign);
-	//WIZMOã‚’é–‰ã˜ã‚‹
+	//WIZMO‚ğ•Â‚¶‚é
 	void Close();
-	//ã‚¢ã‚¯ãƒãƒ¥ã‚¨ãƒ¼ã‚¿åˆ¶å¾¡ã«ãƒ‘ã‚±ãƒƒãƒˆã®æ›¸ãè¾¼ã¿é€ä¿¡
-	//@packet = ãƒ‘ã‚±ãƒƒãƒˆ
+	//ƒAƒNƒ`ƒ…ƒG[ƒ^§Œä‚ÉƒpƒPƒbƒg‚Ì‘‚«‚İ‘—M
+	//@packet = ƒpƒPƒbƒg
 	int Write(const WIZMODataPacket* packet);
 
-	//ã‚³ãƒ¼ãƒ«ãƒãƒƒã‚¯é–¢æ•°ãƒ¡ã‚½ãƒƒãƒ‰
-	//@func = å‘¼ã³å‡ºã™é–¢æ•°
+	//ƒR[ƒ‹ƒoƒbƒNŠÖ”ƒƒ\ƒbƒh
+	//@func = ŒÄ‚Ño‚·ŠÖ”
 	void SetCallbackUpdateFunction(void(*func)());
 
-	//ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£
-	//ä¹—é™ãƒ¢ãƒ¼ãƒ‰è¨­å®š
-	//@value = ãƒ¢ãƒ¼ãƒ‰ON or OFF
+	//ƒvƒƒpƒeƒB
+	//æ~ƒ‚[ƒhİ’è
+	//@value = ƒ‚[ƒhON or OFF
 	void SetOriginMode(bool value);
-	//ç¾åœ¨ã®ä¹—é™ãƒ¢ãƒ¼ãƒ‰å–å¾—
+	//Œ»İ‚Ìæ~ƒ‚[ƒhæ“¾
 	bool GetOriginMode();
-	//è»¸ãƒ—ãƒ­ã‚»ã‚¹ãƒ¢ãƒ¼ãƒ‰è¨­å®šï¼ˆå§¿å‹¢è¨ˆç®—ãƒ¢ãƒ¼ãƒ‰ï¼‰
-	//@value = ãƒ¢ãƒ¼ãƒ‰ON or OFF
+	//²ƒvƒƒZƒXƒ‚[ƒhİ’èip¨ŒvZƒ‚[ƒhj
+	//@value = ƒ‚[ƒhON or OFF
 	void SetAxisProcessingMode(WIZMOAxisMode value);
-	//ç¾åœ¨ã®è»¸ãƒ—ãƒ­ã‚»ã‚¹ãƒ¢ãƒ¼ãƒ‰ã‚’å–å¾—
+	//Œ»İ‚Ì²ƒvƒƒZƒXƒ‚[ƒh‚ğæ“¾
 	WIZMOAxisMode GetAxisProcessingMode();
 
-	//é€Ÿåº¦ã‚²ã‚¤ãƒ³ãƒ¢ãƒ¼ãƒ‰è¨­å®š
-	//@value = ã‚²ã‚¤ãƒ³ãƒ¢ãƒ¼ãƒ‰ä¸€è¦§(WIZMOSpeedGain)
+	//‘¬“xƒQƒCƒ“ƒ‚[ƒhİ’è
+	//@value = ƒQƒCƒ“ƒ‚[ƒhˆê——(WIZMOSpeedGain)
 	void SetSpeedGainMode(WIZMOSpeedGain value);
-	//ç¾åœ¨ã®é€Ÿåº¦ã‚²ã‚¤ãƒ³ãƒ¢ãƒ¼ãƒ‰ã‚’å–å¾—
+	//Œ»İ‚Ì‘¬“xƒQƒCƒ“ƒ‚[ƒh‚ğæ“¾
 	WIZMOSpeedGain GetSpeedGainMode();
 
-	//ç¾åœ¨æ¥ç¶šã•ã‚Œã¦ã„ã‚‹ã‚¢ãƒ—ãƒªã‚³ãƒ¼ãƒ‰ã‚’å–å¾—
+	//Œ»İÚ‘±‚³‚ê‚Ä‚¢‚éƒAƒvƒŠƒR[ƒh‚ğæ“¾
 	const char* GetAppCode() const;
-	//ç¾åœ¨æ¥ç¶šã•ã‚Œã¦ã„ã‚‹ã‚·ãƒªã‚¢ãƒ«ç•ªå·ã‚’å–å¾—
+	//Œ»İÚ‘±‚³‚ê‚Ä‚¢‚éƒVƒŠƒAƒ‹”Ô†‚ğæ“¾
 	const char* GetWIZMOSerialNumber() const;
 	
-	//ãƒ‡ãƒã‚¤ã‚¹ã®çŠ¶æ…‹ã‚’å–å¾—
+	//ƒfƒoƒCƒX‚Ìó‘Ô‚ğæ“¾
 	State GetState();
-	//ãƒ©ã‚¤ãƒ–ãƒ©ãƒªãŒå‹•ä½œä¸­ã‹ã©ã†ã‹
+	//ƒ‰ƒCƒuƒ‰ƒŠ‚ª“®ì’†‚©‚Ç‚¤‚©
 	bool GetWIZMOStatus();
-	//æ¥ç¶šã•ã‚Œã¦ã„ã‚‹ãƒ‡ãƒã‚¤ã‚¹ã®ç¨®é¡ã‚’å–å¾—
+	//Ú‘±‚³‚ê‚Ä‚¢‚éƒfƒoƒCƒX‚Ìí—Ş‚ğæ“¾
 	WIZMODevice GetWIZMODevice();
-	//ãƒ©ã‚¤ãƒ–ãƒ©ãƒªã®ãƒãƒ¼ã‚¸ãƒ§ãƒ³ã‚’å–å¾—
+	//ƒ‰ƒCƒuƒ‰ƒŠ‚Ìƒo[ƒWƒ‡ƒ“‚ğæ“¾
 	const char* GetVersion() const;
-	//ãƒ‡ãƒã‚¤ã‚¹ãŒå‹•ä½œä¸­ã‹ã©ã†ã‹ã‚’è¿”ã™
+	//ƒfƒoƒCƒX‚ª“®ì’†‚©‚Ç‚¤‚©‚ğ•Ô‚·
 	bool IsRunning() const;
 
-	//å¤–éƒ¨ãƒ‡ãƒ¼ã‚¿ã‚’å–å¾—
+	//ŠO•”ƒf[ƒ^‚ğæ“¾
 	int GetStatusEXT4() const;
 
 private:
-	void Update(WIZMODataPacket& packet);
+	void Update(WIZMODataPacket& packet);		// USB Œo—R
+	void UpdateLAN(WIZMODataPacket& packet);	// LAN Œo—R
 	void ThreadUpdate();
-	void CalcToAxisPacket(WIZMODataPacket& packet);
+	void CalcToAxisPacket(WIZMODataPacket& packet, bool speedAdjust);
 	void LogError();
-
-	void LANStart();
-	void LANStop();
-	bool LANSelect(const char* deviceName, const char* serialNumber);
-	void LANUpdate(WIZMODataPacket& packet);
-	void LANUpdateKV(WIZMODataPacket& packet);
 
 	struct Property* property;
 };

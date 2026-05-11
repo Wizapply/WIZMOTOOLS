@@ -10,7 +10,7 @@ class WIZMOTest
 
         WIZMO wm = new wizmo.WIZMO(true);
         wm.Starter("");
-        wm.SetAxisProcessingMode(WizmoAxisMode.AXIS_MODE_GLOBALPOSE);
+        wm.SetAxisProcessingMode(WizmoAxisMode.GLOBALPOSE);
         wm.SimpleMotionPowerUpdate(0.02f,0.666f);
 
         while (wm.IsRunning())

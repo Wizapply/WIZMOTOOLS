@@ -9,16 +9,20 @@ namespace wizmo
     /// </summary>
     public enum WizmoState : int
     {
-        CanNotFindUsb = 0,  // USB 未接続
-        CanNotFindWizmo = 1,  // WIZMO 未接続
-        CanNotCalibration = 2,  // キャリブレーション起動失敗
-        TimeoutCalibration = 3,  // キャリブレーション中の失敗
-        ShutDownActuator = 4,  // アクチュエータ停止
-        CanNotCertificate = 5,  // 認証失敗
-        Initial = 6,  // 初期状態
-        Running = 7,  // 動作中
-        StopActuator = 8,  // アクチュエータ一部停止
-        CalibrationRetry = 9,  // キャリブレーション再設定
+        // エラー＆ストップ
+        CanNotFindUsb = 0,          //未接続
+        CanNotFindWizmo,            //未接続
+        CanNotCalibration,          //キャリブレーション起動失敗
+        TimeoutCalibration,         //キャリブレーション中の失敗
+        ShutDownActuator,           //アクチュエータ停止
+        CanNotCertificate,          //認証失敗
+                                    // ランニング
+        Initial,                    //初期状態 通電中
+        CalibrationRunning,         //キャリブレーション中
+        Running,                    //動作中
+                                    // フォールトトレラント
+        StopActuator,               //アクチュエータ一部停止
+        CalibrationRetry,			//キャリブレーション再設定
     }
 
     /// <summary>
@@ -28,15 +32,18 @@ namespace wizmo
     public enum WizmoDevice : int
     {
         NONE = 0,
-        SIMVR4DOF = 1,
-        SIMVR6DOF = 2,
-        SIMVR6DOF_MASSIVE = 3,
-        SIMVRDRIVEX = 4,
-        ANTSEAT = 5,
-        SIMVRMASSIVE_KV = 6,
-        SIMVR2DOF_KV = 7,
-        SIMVR2DOF = 8,
-        SIMVRKICKBOARD_KV = 9,
+        SIMVR2DOF,
+        SIMVR4DOF,
+        SIMVR6DOF,
+        ANTSEAT,
+        SIMVRMASSIVE_KV,
+        SIMVRMASSIVE500_KV,
+
+        SIMVR_KDIVE2_OEM = 100,
+        SIMVR_KICKBOARD_KV_OEM,
+        SIMVR_E2M_EMU_OEM,
+        SIMVR_DRIVEX_OEM,
+        SIMVR_OSDX_OEM
     }
 
     /// <summary>
@@ -45,9 +52,9 @@ namespace wizmo
     /// </summary>
     public enum WizmoSpeedGain : int
     {
-        Normal = 0,     // ノーマル速度ゲイン（全軸固定速度設定）
-        Variable = 1,   // 可変速度ゲイン（追従速度モード）
-        Manual = 2,     // マニュアル速度ゲイン（軸別の速度設定）
+        NORMAL = 0,  //ノーマル速度ゲイン（全軸固定速度設定）※デフォルト
+        VARIABLE,    //可変速度ゲイン（追従速度モード）
+        MANUAL,		//マニュアル速度ゲイン（軸別の速度設定）
     }
 
     /// <summary>
@@ -56,10 +63,11 @@ namespace wizmo
     /// </summary>
     public enum WizmoAxisMode : int
     {
-        AXIS_MODE_MANUAL = 0,       //アクチュエータごとに設定（自作で計算する場合など）
-        AXIS_MODE_GLOBALPOSE = 1,   //グローバル座標での姿勢計算　※デフォルト
-        AXIS_MODE_LOCALPOSE = 2,	//ローカル座標での姿勢計算
+        MANUAL = 0,   //アクチュエータごとに設定（自作で計算する場合など）
+        GLOBALPOSE,   //グローバル座標での姿勢計算　※デフォルト
+        LOCALPOSE,	//ローカル座標での姿勢計算
     }
+
 
     /// <summary>
     /// WIZMO データパケット構造体
@@ -67,7 +75,7 @@ namespace wizmo
     [StructLayout(LayoutKind.Sequential)]
     public class wizmoPacket
     {
-        // Axis position controls
+        //軸オペレーション
         public float axis1;
         public float axis2;
         public float axis3;
@@ -75,7 +83,7 @@ namespace wizmo
         public float axis5;
         public float axis6;
 
-        // Axis speed/accel controls
+        //軸速度・加速度オペレーション
         public float speed1_all;
         public float speed2;
         public float speed3;
@@ -84,20 +92,26 @@ namespace wizmo
         public float speed6;
         public float accel;
 
-        // Axis Processing
-        public float roll;
-        public float pitch;
-        public float yaw;
-        public float heave;
-        public float sway;
-        public float surge;
+        //軸プロセッシング
+        public float roll;                             //ロール:-1.0～1.0
+        public float pitch;                            //ピッチ:-1.0～1.0
+        public float yaw;                              //ヨー:-1.0～1.0
+        public float heave;                            //ヒーブ:-1.0～1.0
+        public float sway;                             //スウェイ:-1.0～1.0
+        public float surge;                            //サージ:-1.0～1.0
 
-        public float rotationMotionRatio;
-        public float gravityMotionRatio;
+        //ピボット
+        public float pivotX;                           //MASSIVE 軸ピボットX(mm)
+        public float pivotY;                           //MASSIVE 軸ピボットY(mm)
+        public float pivotZ;                           //MASSIVE 軸ピボットZ(mm)
 
-        public int commandSendCount;
+        //レシオ
+        public float rotationMotionRatio;              //回転モーション比率:0.0～1.0
+        public float gravityMotionRatio;               //Gモーション比率:0.0～1.0
+                                                //コマンド
+        public int commandSendCount;            //コマンド送信回数
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
-        public string command;
+        public string command;                  //コマンド送信文字列
 
         public wizmoPacket()
         {
@@ -122,6 +136,8 @@ namespace wizmo
             heave = 0.0f;
             sway = 0.0f;
             surge = 0.0f;
+
+            pivotX = pivotY = pivotZ = 0.0f;
 
             rotationMotionRatio = 1.0f;
             gravityMotionRatio = 0.0f;
@@ -343,6 +359,23 @@ namespace wizmo
             wizmoWrite(g_wizmoHandle, g_simplePacket);
         }
 
+        /// <summary>
+        /// ピボット位置を変更 (SIMVR MASSIVEのみ有効)
+        /// </summary>
+        /// <param name="x">X位置(mm)</param>
+        /// <param name="y">Y位置(mm)</param>
+        /// <param name="z">Z位置(mm)</param>
+        public void SimplePivotUpdate(float x, float y, float z)
+        {
+            if (!g_wizmoIsOpen)
+                return;
+
+            g_simplePacket.pivotX = x;
+            g_simplePacket.pivotY = y;
+            g_simplePacket.pivotZ = z;
+            wizmoWrite(g_wizmoHandle, g_simplePacket);
+        }
+
         // ============================================================
         //  プロパティ設定・取得
         // ============================================================
@@ -479,14 +512,14 @@ namespace wizmo
         [Obsolete("SetSpeedGainMode(WizmoSpeedGain) を使用してください")]
         public void SetVariableGainMode(bool value)
         {
-            SetSpeedGainMode(value ? WizmoSpeedGain.Variable : WizmoSpeedGain.Normal);
+            SetSpeedGainMode(value ? WizmoSpeedGain.VARIABLE : WizmoSpeedGain.NORMAL);
         }
 
         /// <summary>現在の可変速度ゲインモードの ON/OFF を取得する</summary>
         [Obsolete("GetSpeedGainMode() を使用してください")]
         public bool GetVariableGainMode()
         {
-            return GetSpeedGainMode() == WizmoSpeedGain.Variable;
+            return GetSpeedGainMode() == WizmoSpeedGain.VARIABLE;
         }
     }
 }

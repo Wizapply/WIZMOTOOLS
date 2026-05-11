@@ -1,6 +1,6 @@
 /**************************************************************************
 *
-*              Copyright (c) 2014-2026 by WIZAPPLY.
+*              Copyright (c) WIZAPPLY.
 *
 *  This software is copyrighted by and is the sole property of Wizapply
 *  All rights, title, ownership, or other interests in the software
