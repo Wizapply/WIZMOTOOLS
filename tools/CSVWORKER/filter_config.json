@@ -21,26 +21,26 @@
       "roll": {
         "type": "LOW_PASS",
         "cutoff": 1.25,
-        "normalization": 20.0,
-        "is_radian": false
+        "normalization": 16.0,
+        "is_radian": true
       },
       "pitch": {
         "type": "LOW_PASS",
         "cutoff": 1.25,
-        "normalization": 20.0,
-        "is_radian": false
+        "normalization": 16.0,
+        "is_radian": true
       },
       "yaw": {
         "type": "LOW_PASS",
         "cutoff": 1.25,
-        "normalization": 20.0,
-        "is_radian": false
+        "normalization": 16.0,
+        "is_radian": true
       }
     }
   },
   "motion_ratio": {
-    "rotation": 1.0,
-    "gravity": 0.0
+    "rotation": 0.9,
+    "gravity": 0.8
   },
   "gain_mode": {
     "variable_mode": true
