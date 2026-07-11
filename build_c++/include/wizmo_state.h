@@ -29,20 +29,20 @@ namespace WIZMOSDK {
 	//State List
 	enum class State
 	{
-		// ƒGƒ‰[•ƒXƒgƒbƒv
-		CanNotFindUsb = 0,			//–¢Ú‘±
-		CanNotFindWizmo,			//–¢Ú‘±
-		CanNotCalibration,			//ƒLƒƒƒŠƒuƒŒ[ƒVƒ‡ƒ“‹N“®Ž¸”s
-		TimeoutCalibration,			//ƒLƒƒƒŠƒuƒŒ[ƒVƒ‡ƒ“’†‚ÌŽ¸”s
-		ShutDownActuator,			//ƒAƒNƒ`ƒ…ƒG[ƒ^’âŽ~
-		CanNotCertificate,			//”FØŽ¸”s
-		// ƒ‰ƒ“ƒjƒ“ƒO
-		Initial,					//‰Šúó‘Ô ’Ê“d’†
-		CalibrationRunning,			//ƒLƒƒƒŠƒuƒŒ[ƒVƒ‡ƒ“’†
-		Running,					//“®ì’†
-		// ƒtƒH[ƒ‹ƒgƒgƒŒƒ‰ƒ“ƒg
-		StopActuator,				//ƒAƒNƒ`ƒ…ƒG[ƒ^ˆê•”’âŽ~
-		CalibrationRetry,			//ƒLƒƒƒŠƒuƒŒ[ƒVƒ‡ƒ“ÄÝ’è
+		// ã‚¨ãƒ©ãƒ¼ï¼†ã‚¹ãƒˆãƒƒãƒ—
+		CanNotFindUsb = 0,			//æœªæŽ¥ç¶š
+		CanNotFindWizmo,			//æœªæŽ¥ç¶š
+		CanNotCalibration,			//ã‚­ãƒ£ãƒªãƒ–ãƒ¬ãƒ¼ã‚·ãƒ§ãƒ³èµ·å‹•å¤±æ•—
+		TimeoutCalibration,			//ã‚­ãƒ£ãƒªãƒ–ãƒ¬ãƒ¼ã‚·ãƒ§ãƒ³ä¸­ã®å¤±æ•—
+		ShutDownActuator,			//ã‚¢ã‚¯ãƒãƒ¥ã‚¨ãƒ¼ã‚¿åœæ­¢
+		CanNotCertificate,			//èªè¨¼å¤±æ•—
+		// ãƒ©ãƒ³ãƒ‹ãƒ³ã‚°
+		Initial,					//åˆæœŸçŠ¶æ…‹ é€šé›»ä¸­
+		CalibrationRunning,			//ã‚­ãƒ£ãƒªãƒ–ãƒ¬ãƒ¼ã‚·ãƒ§ãƒ³ä¸­
+		Running,					//å‹•ä½œä¸­
+		// ãƒ•ã‚©ãƒ¼ãƒ«ãƒˆãƒˆãƒ¬ãƒ©ãƒ³ãƒˆ
+		StopActuator,				//ã‚¢ã‚¯ãƒãƒ¥ã‚¨ãƒ¼ã‚¿ä¸€éƒ¨åœæ­¢
+		CalibrationRetry,			//ã‚­ãƒ£ãƒªãƒ–ãƒ¬ãƒ¼ã‚·ãƒ§ãƒ³å†è¨­å®š
 	};
 
 	//Deivce List
@@ -62,17 +62,17 @@ namespace WIZMOSDK {
 		SIMVR_OSDX_OEM
 	};
 
-	//ƒQƒCƒ“ƒ‚[ƒhˆê——
+	//ã‚²ã‚¤ãƒ³ãƒ¢ãƒ¼ãƒ‰ä¸€è¦§
 	enum class WIZMOSpeedGain {
-		SPEEDGAIN_MODE_NORMAL = 0,	//ƒm[ƒ}ƒ‹‘¬“xƒQƒCƒ“i‘SŽ²ŒÅ’è‘¬“xÝ’èj¦ƒfƒtƒHƒ‹ƒg
-		SPEEDGAIN_MODE_VARIABLE,	//‰Â•Ï‘¬“xƒQƒCƒ“i’Ç]‘¬“xƒ‚[ƒhj
-		SPEEDGAIN_MODE_MANUAL,		//ƒ}ƒjƒ…ƒAƒ‹‘¬“xƒQƒCƒ“iŽ²•Ê‚Ì‘¬“xÝ’èj
+		SPEEDGAIN_MODE_NORMAL = 0,	//ãƒŽãƒ¼ãƒžãƒ«é€Ÿåº¦ã‚²ã‚¤ãƒ³ï¼ˆå…¨è»¸å›ºå®šé€Ÿåº¦è¨­å®šï¼‰â€»ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆ
+		SPEEDGAIN_MODE_VARIABLE,	//å¯å¤‰é€Ÿåº¦ã‚²ã‚¤ãƒ³ï¼ˆè¿½å¾“é€Ÿåº¦ãƒ¢ãƒ¼ãƒ‰ï¼‰
+		SPEEDGAIN_MODE_MANUAL,		//ãƒžãƒ‹ãƒ¥ã‚¢ãƒ«é€Ÿåº¦ã‚²ã‚¤ãƒ³ï¼ˆè»¸åˆ¥ã®é€Ÿåº¦è¨­å®šï¼‰
 	};
 
-	//Žp¨ŒvŽZƒ‚[ƒhˆê——(for MASSIVE)
+	//å§¿å‹¢è¨ˆç®—ãƒ¢ãƒ¼ãƒ‰ä¸€è¦§(for MASSIVE)
 	enum class WIZMOAxisMode {
-		AXIS_MODE_MANUAL = 0,	//ƒAƒNƒ`ƒ…ƒG[ƒ^‚²‚Æ‚ÉÝ’èiŽ©ì‚ÅŒvŽZ‚·‚éê‡‚È‚Çj
-		AXIS_MODE_GLOBALPOSE,	//ƒOƒ[ƒoƒ‹À•W‚Å‚ÌŽp¨ŒvŽZ@¦ƒfƒtƒHƒ‹ƒg
-		AXIS_MODE_LOCALPOSE,	//ƒ[ƒJƒ‹À•W‚Å‚ÌŽp¨ŒvŽZ
+		AXIS_MODE_MANUAL = 0,	//ã‚¢ã‚¯ãƒãƒ¥ã‚¨ãƒ¼ã‚¿ã”ã¨ã«è¨­å®šï¼ˆè‡ªä½œã§è¨ˆç®—ã™ã‚‹å ´åˆãªã©ï¼‰
+		AXIS_MODE_GLOBALPOSE,	//ã‚°ãƒ­ãƒ¼ãƒãƒ«åº§æ¨™ã§ã®å§¿å‹¢è¨ˆç®—ã€€â€»ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆ
+		AXIS_MODE_LOCALPOSE,	//ãƒ­ãƒ¼ã‚«ãƒ«åº§æ¨™ã§ã®å§¿å‹¢è¨ˆç®—
 	};
 }

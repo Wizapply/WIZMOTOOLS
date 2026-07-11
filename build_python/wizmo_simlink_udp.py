@@ -135,7 +135,7 @@ except FileNotFoundError:
 wm.starter('')
 wm.simple_motion_power_update(1.0,1.0)
 wm.speed_gain_mode(wizmo.wizmoSpeedGain.Variable)
-wm.simple_motion_ratio_update(0.8, 0.7)
+wm.simple_motion_ratio_update(1.0, 0.3)
 
 time.sleep(3)
 print('This program can change motion of wizmo from Simlink UDP/IP')

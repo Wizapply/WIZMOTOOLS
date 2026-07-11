@@ -1,4 +1,4 @@
-﻿import hid
+﻿import hid, sys
 import struct
 import csv
 import time
@@ -25,8 +25,13 @@ simvr_variable = {
 # -----------------------------
 # SpaceNavigator 設定
 # -----------------------------
-VENDOR_ID = 0x46D
-PRODUCT_ID = 0xC626
+# NEW SpaceNavigator
+VENDOR_ID = 0x256F
+PRODUCT_ID = 0xC63A
+# OLD SpaceNavigator
+VENDOR_ID_OLD = 0x046D
+PRODUCT_ID_OLD = 0xC626
+
 MAX_VAL = 350.0
 
 def normalize(v):
@@ -56,7 +61,7 @@ except Exception as e:
     exit(1)
 
 # 初期化完了待ち
-timeout = 20.0
+timeout = 10.0
 start_wait = time.time()
 
 while wm.get_status() == wizmo.wizmoStatus.Initial:
@@ -73,7 +78,7 @@ try:
 except Exception as e:
     print("ERROR: WIZMO 初期設定に失敗しました:", e)
     wm.close()
-    exit(1)
+    ys.exit(1)
 
 print("WIZMO initialized successfully")
 
@@ -81,7 +86,14 @@ print("WIZMO initialized successfully")
 # SpaceNavigator 初期化
 # -----------------------------
 h = hid.device()
-h.open(VENDOR_ID, PRODUCT_ID)
+try:
+    h.open(VENDOR_ID, PRODUCT_ID)
+except OSError:
+    try:
+        h.open(VENDOR_ID_OLD, PRODUCT_ID_OLD)
+    except OSError:
+        print('[FAILED] SpaceNavigator Open Error.')
+        sys.exit(1)
 h.set_nonblocking(True)
 
 print("SpaceNavigator connected")
@@ -144,7 +156,7 @@ while running:
 
     if data:
         report_id = data[0]
-
+        
         if report_id == 1:
             raw_x = struct.unpack('<h', bytes(data[1:3]))[0]
             raw_y = struct.unpack('<h', bytes(data[3:5]))[0]
@@ -153,6 +165,15 @@ while running:
             sixdof["surge"] = -normalize(raw_y)# 逆のため変換
             sixdof["sway"]  = normalize(raw_x)
             sixdof["heave"] = normalize(raw_z)
+
+            #new 3d mouse(roll,pitch,yaw)
+            if len(data) >= 13:
+                rx = struct.unpack('<h', bytes(data[7:9]))[0]
+                ry = struct.unpack('<h', bytes(data[9:11]))[0]
+                rz = struct.unpack('<h', bytes(data[11:13]))[0]
+                sixdof["pitch"] = normalize(rx)
+                sixdof["roll"]  = -normalize(ry)# 逆のため変換
+                sixdof["yaw"]   = normalize(rz)
 
         elif report_id == 2:
             rx = struct.unpack('<h', bytes(data[1:3]))[0]
