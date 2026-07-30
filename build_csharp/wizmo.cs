@@ -54,7 +54,7 @@ namespace wizmo
     {
         NORMAL = 0,  //ノーマル速度ゲイン（全軸固定速度設定）※デフォルト
         VARIABLE,    //可変速度ゲイン（追従速度モード）
-        MANUAL,		//マニュアル速度ゲイン（軸別の速度設定）
+        MANUAL,		 //マニュアル速度ゲイン（軸別の速度設定）
     }
 
     /// <summary>
@@ -408,6 +408,13 @@ namespace wizmo
         /// <param name="value">速度ゲインモード</param>
         public void SetSpeedGainMode(WizmoSpeedGain value)
         {
+            if (value == WizmoSpeedGain.NORMAL)
+            {
+                if (GetAxisProcessingMode() == WizmoAxisMode.MANUAL)
+                {
+                    value = WizmoSpeedGain.MANUAL;
+                }
+            }
             wizmoSetSpeedGainMode(g_wizmoHandle, (int)value);
         }
 
@@ -422,14 +429,14 @@ namespace wizmo
         // ============================================================
 
         /// <summary>現在接続されているアプリケーションコードを取得する</summary>
-        public string? GetAppCode()
+        public string GetAppCode()
         {
             IntPtr pStr = wizmoGetAppCode(g_wizmoHandle);
             return Marshal.PtrToStringAnsi(pStr);
         }
 
         /// <summary>現在接続されているシリアル番号を取得する</summary>
-        public string? GetSerialNumber()
+        public string GetSerialNumber()
         {
             IntPtr pStr = wizmoGetSerialNumber(g_wizmoHandle);
             return Marshal.PtrToStringAnsi(pStr);
@@ -465,7 +472,7 @@ namespace wizmo
         }
 
         /// <summary>ライブラリのバージョンを取得する</summary>
-        public string? GetVersion()
+        public string GetVersion()
         {
             IntPtr pStr = wizmoGetVersion(g_wizmoHandle);
             return Marshal.PtrToStringAnsi(pStr);

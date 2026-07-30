@@ -450,6 +450,9 @@ class wizmo():
         if value is None:
             return wizmoSpeedGain(self.wizmolib.wizmoGetSpeedGainMode(self.wizmoHandle))
         else:
+            if value == wizmoSpeedGain.Normal:
+                if self.axis_processing_mode() == wizmoAxisMode.Manual:
+                    value = wizmoSpeedGain.Manual
             self.wizmolib.wizmoSetSpeedGainMode(self.wizmoHandle, int(value))
 
     # ------------------------------------------------------------
