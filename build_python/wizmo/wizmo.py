@@ -3,7 +3,7 @@
 from ctypes import (
     CDLL, Structure, POINTER, cdll,
     c_int, c_float, c_char, c_char_p,
-    pointer, create_string_buffer,
+    byref, create_string_buffer,
 )
 import time
 import platform
@@ -13,6 +13,11 @@ from enum import IntEnum
 
 # Define
 WIZMO_HANDLE_ERROR = -1
+
+
+class WizmoLibraryLoadError(FileNotFoundError, RuntimeError):
+    """DLL / so の読み込み失敗。
+    従来どおり RuntimeError でも、サンプルの FileNotFoundError でも捕捉できる。"""
 
 
 # ============================================================
@@ -76,6 +81,19 @@ class wizmoDevice(IntEnum):
     SIMVR_E2M_EMU_OEM = 102
     SIMVR_DRIVEX_OEM = 103
     SIMVR_OSDX_OEM = 104
+
+
+def _to_enum(enum_cls, value: int):
+    """列挙型に無い値が返ってきても例外にせず int のまま返す"""
+    try:
+        return enum_cls(value)
+    except ValueError:
+        return int(value)
+
+
+def _decode(p) -> str:
+    """DLL から返る C 文字列を安全にデコードする"""
+    return p.decode("utf-8", errors="replace") if p else ""
 
 
 # ============================================================
@@ -173,37 +191,47 @@ class wizmo():
         if 'armv' in platform.machine() or 'aarch64' in platform.machine():
             arch_isARM = True
 
-        # For pyinstaller build
-        if getattr(sys, 'frozen', False):
-            libloadpath = ""
-        else:
-            libloadpath = os.path.dirname(__file__)
-
         if os_name == 'Windows':
             if arch_is64bit:
-                if arch_isARM:
-                    libloadpath += '\\wizmoARM64.dll'
-                else:
-                    libloadpath += '\\wizmo.dll'
+                libname = 'wizmoARM64.dll' if arch_isARM else 'wizmo.dll'
             else:
-                libloadpath += '\\wizmo32.dll'
+                libname = 'wizmo32.dll'
         else:
             if arch_isARM:
-                if arch_is64bit:
-                    libloadpath += '/libwizmoRPi64.so'
-                else:
-                    libloadpath += '/libwizmoRPi32.so'
+                libname = 'libwizmoRPi64.so' if arch_is64bit else 'libwizmoRPi32.so'
             else:
-                if arch_is64bit:
-                    libloadpath += '/libwizmo.so'
-                else:
-                    libloadpath += '/libwizmo32.so'
+                libname = 'libwizmo.so' if arch_is64bit else 'libwizmo32.so'
+
+        # DLL の探索場所
+        #   PyInstaller ビルド時: <展開先>/wizmo, <展開先>, <exe>/wizmo, <exe>
+        #                         (--collect-binaries wizmo なら <展開先>/wizmo に入る)
+        #   通常実行時          : この wizmo.py と同じフォルダ (= パッケージ内)
+        if getattr(sys, 'frozen', False):
+            meipass = getattr(sys, '_MEIPASS', None)
+            exedir = os.path.dirname(os.path.abspath(sys.executable))
+            libdirs = [d for d in (
+                os.path.join(meipass, 'wizmo') if meipass else None,
+                meipass,
+                os.path.join(exedir, 'wizmo'),
+                exedir,
+            ) if d]
+        else:
+            libdirs = [os.path.dirname(os.path.abspath(__file__))]
+
+        libloadpath = next(
+            (os.path.join(d, libname) for d in libdirs
+             if os.path.exists(os.path.join(d, libname))),
+            os.path.join(libdirs[0], libname))
 
         if wizmo._wizmo_lib is None:
+            libdir = os.path.dirname(libloadpath)
+            # 依存 DLL も同じフォルダから探せるようにする (Windows / Python 3.8+)
+            if os_name == 'Windows' and hasattr(os, 'add_dll_directory') and os.path.isdir(libdir):
+                os.add_dll_directory(libdir)
             try:
                 wizmo._wizmo_lib = cdll.LoadLibrary(libloadpath)
             except OSError as e:
-                raise RuntimeError(f"WIZMO Load Library Error:{libloadpath}") from e
+                raise WizmoLibraryLoadError(f"WIZMO Load Library Error:{libloadpath}") from e
             wizmo._setup_signatures(wizmo._wizmo_lib)
 
         self.wizmolib = wizmo._wizmo_lib
@@ -276,8 +304,9 @@ class wizmo():
             p = create_string_buffer(size)
             iRef = wizmo._wizmo_lib.wizmoGetBackLog(p, size)
             if iRef > 0:
-                bufferString = p.value.decode()
-                buf_res += bufferString.rstrip("\n")
+                # NUL で途切れないよう raw から受信長ぶん取り出し、不正バイトは置換
+                bufferString = p.raw[:min(iRef, size)].decode("utf-8", errors="replace")
+                buf_res += bufferString.rstrip("\x00").rstrip("\n")
 
         if printing and buf_res != '':
             print(buf_res)
@@ -287,18 +316,20 @@ class wizmo():
     # ------------------------------------------------------------
     #  接続・切断
     # ------------------------------------------------------------
-    def starter(self, appCode: str, assign: str = "", blocking: bool = False) -> int:
+    def starter(self, appCode: str, assign: str = "", blocking: bool = False,
+                timeout: float = 30.0) -> int:
         """WIZMO をオープンし動作可能モードにする
 
         Args:
             appCode: アプリケーションコード
             assign: シリアル番号でデバイスを指定 (空文字なら自動選択)
-            blocking: 初期化完了までブロックするか
+            blocking: キャリブレーション完了 (Running) までブロックするか
+            timeout: blocking 時の最大待ち時間 [秒] (0 以下で無制限)
         """
         if self.wizmoHandle >= 0:
             if self.verbose:
                 print("WIZMO IS ALREADY OPEN.")
-            return WIZMO_HANDLE_ERROR
+            return self.wizmoHandle
 
         if assign == "":
             self.wizmoHandle = int(self.wizmolib.wizmoOpen(appCode.encode()))
@@ -314,11 +345,43 @@ class wizmo():
             if self.verbose:
                 print("STARTED WIZMO.")
             if blocking:
-                while self.get_status() <= wizmoStatus.Initial:
-                    print(self.get_status())
-                    time.sleep(0.1)
+                self.wait_ready(timeout)
 
         return self.wizmoHandle
+
+    def wait_ready(self, timeout: float = 30.0) -> bool:
+        """Running (または一部停止で動作継続) になるまで待つ
+
+        接続失敗などでライブラリが停止した場合 (is_running() == False) は即座に抜ける。
+        ※ その場合 get_status() は Initial のまま変わらない。
+
+        Returns:
+            True: 動作可能になった / False: 停止・タイムアウト
+        """
+        ready = (wizmoStatus.Running, wizmoStatus.StopActuator)
+        start = time.monotonic()
+        last = None
+        while True:
+            st = self.get_status()
+            if st != last:
+                if self.verbose:
+                    print(f"WIZMO STATE: {getattr(st, 'name', st)}")
+                last = st
+            if st in ready:
+                return True
+            if not self.is_running():
+                if self.verbose:
+                    print("WIZMO STOPPED WHILE WAITING.")
+                return False
+            if timeout > 0 and time.monotonic() - start > timeout:
+                if self.verbose:
+                    print(f"WIZMO WAIT TIMEOUT ({getattr(st, 'name', st)})")
+                return False
+            time.sleep(0.1)
+
+    def is_open(self) -> bool:
+        """ハンドルを取得済みか"""
+        return self.wizmoHandle != WIZMO_HANDLE_ERROR
 
     def starter_serialassign(self, appCode: str, assign: str, blocking: bool = False) -> int:
         """非推奨: starter(appCode, assign=...) を使用してください"""
@@ -340,7 +403,7 @@ class wizmo():
         """wizmoPacket を直接指定してアクチュエータにパケットを送信する"""
         if self.wizmoHandle == WIZMO_HANDLE_ERROR:
             return
-        self.wizmolib.wizmoWrite(self.wizmoHandle, pointer(packet))
+        self.wizmolib.wizmoWrite(self.wizmoHandle, byref(packet))
 
     def simple_pose_update(self, roll: float, pitch: float, yaw: float,
                            heave: float, sway: float, surge: float) -> None:
@@ -354,9 +417,10 @@ class wizmo():
         self.simplePacket.heave = heave
         self.simplePacket.sway = sway
         self.simplePacket.surge = surge
-        self.wizmolib.wizmoWrite(self.wizmoHandle, pointer(self.simplePacket))
+        self.wizmolib.wizmoWrite(self.wizmoHandle, byref(self.simplePacket))
 
-    def simple_pose_update_tuple(self, value: tuple) -> None:
+    def simple_pose_update_tuple(self, value) -> None:
+        """(roll, pitch, yaw, heave, sway, surge) の 6 要素シーケンスで送信する"""
         if self.wizmoHandle == WIZMO_HANDLE_ERROR:
             return
 
@@ -371,7 +435,7 @@ class wizmo():
         self.simplePacket.heave = value[3]
         self.simplePacket.sway = value[4]
         self.simplePacket.surge = value[5]
-        self.wizmolib.wizmoWrite(self.wizmoHandle, pointer(self.simplePacket))
+        self.wizmolib.wizmoWrite(self.wizmoHandle, byref(self.simplePacket))
 
     def simple_motion_ratio_update(self, rotation: float, gravity: float) -> None:
         """モーション比率を更新してパケットを送信する"""
@@ -380,7 +444,7 @@ class wizmo():
 
         self.simplePacket.rotationMotionRatio = rotation
         self.simplePacket.gravityMotionRatio = gravity
-        self.wizmolib.wizmoWrite(self.wizmoHandle, pointer(self.simplePacket))
+        self.wizmolib.wizmoWrite(self.wizmoHandle, byref(self.simplePacket))
 
     def simple_motion_speed_update(self, accel: float, speed1: float, speed2: float,
                                    speed3: float, speed4: float, speed5: float,
@@ -396,7 +460,7 @@ class wizmo():
         self.simplePacket.speed4 = speed4
         self.simplePacket.speed5 = speed5
         self.simplePacket.speed6 = speed6
-        self.wizmolib.wizmoWrite(self.wizmoHandle, pointer(self.simplePacket))
+        self.wizmolib.wizmoWrite(self.wizmoHandle, byref(self.simplePacket))
 
     def simple_motion_power_update(self, accel: float, speed: float) -> None:
         """全軸を同一の速度に設定してパケットを送信する"""
@@ -410,7 +474,7 @@ class wizmo():
         self.simplePacket.speed4 = speed
         self.simplePacket.speed5 = speed
         self.simplePacket.speed6 = speed
-        self.wizmolib.wizmoWrite(self.wizmoHandle, pointer(self.simplePacket))
+        self.wizmolib.wizmoWrite(self.wizmoHandle, byref(self.simplePacket))
 
     def simple_pivot_update(self, x: float, y: float, z: float) -> None:
         """ピボット位置を変更 (SIMVR MASSIVE のみ有効)
@@ -426,7 +490,7 @@ class wizmo():
         self.simplePacket.pivotX = x
         self.simplePacket.pivotY = y
         self.simplePacket.pivotZ = z
-        self.wizmolib.wizmoWrite(self.wizmoHandle, pointer(self.simplePacket))
+        self.wizmolib.wizmoWrite(self.wizmoHandle, byref(self.simplePacket))
 
     # ------------------------------------------------------------
     #  プロパティ設定・取得
@@ -434,7 +498,7 @@ class wizmo():
     def axis_processing_mode(self, value: wizmoAxisMode = None):
         """軸プロセスモードの設定/取得"""
         if value is None:
-            return wizmoAxisMode(self.wizmolib.wizmoGetAxisProcessingMode(self.wizmoHandle))
+            return _to_enum(wizmoAxisMode, self.wizmolib.wizmoGetAxisProcessingMode(self.wizmoHandle))
         else:
             self.wizmolib.wizmoSetAxisProcessingMode(self.wizmoHandle, int(value))
 
@@ -448,7 +512,7 @@ class wizmo():
     def speed_gain_mode(self, value: wizmoSpeedGain = None):
         """速度ゲインモードの設定/取得"""
         if value is None:
-            return wizmoSpeedGain(self.wizmolib.wizmoGetSpeedGainMode(self.wizmoHandle))
+            return _to_enum(wizmoSpeedGain, self.wizmolib.wizmoGetSpeedGainMode(self.wizmoHandle))
         else:
             if value == wizmoSpeedGain.Normal:
                 if self.axis_processing_mode() == wizmoAxisMode.Manual:
@@ -461,16 +525,16 @@ class wizmo():
     def get_app_code(self) -> str:
         """現在接続されているアプリケーションコードを取得する"""
         p = self.wizmolib.wizmoGetAppCode(self.wizmoHandle)
-        return p.decode() if p else ""
+        return _decode(p)
 
     def get_serial_number(self) -> str:
         """現在接続されているシリアル番号を取得する"""
         p = self.wizmolib.wizmoGetSerialNumber(self.wizmoHandle)
-        return p.decode() if p else ""
+        return _decode(p)
 
     def get_status(self) -> wizmoStatus:
         """デバイスの現在の状態を取得する"""
-        return wizmoStatus(self.wizmolib.wizmoGetState(self.wizmoHandle))
+        return _to_enum(wizmoStatus, self.wizmolib.wizmoGetState(self.wizmoHandle))
 
     def get_system_status(self) -> bool:
         """ライブラリが動作中かどうかを取得する"""
@@ -482,16 +546,17 @@ class wizmo():
 
     def get_device(self) -> wizmoDevice:
         """接続されているデバイスの種類を取得する"""
-        return wizmoDevice(self.wizmolib.wizmoGetDevice(self.wizmoHandle))
+        return _to_enum(wizmoDevice, self.wizmolib.wizmoGetDevice(self.wizmoHandle))
 
     def get_device_name(self) -> str:
         """接続されているデバイス名を取得する"""
-        return self.get_device().name
+        d = self.get_device()
+        return d.name if isinstance(d, wizmoDevice) else f"UNKNOWN({d})"
 
     def get_version(self) -> str:
         """ライブラリのバージョンを取得する"""
         p = self.wizmolib.wizmoGetVersion(self.wizmoHandle)
-        return p.decode() if p else ""
+        return _decode(p)
 
     def get_status_ext4(self) -> int:
         """外部データ (EXT4) を取得する"""

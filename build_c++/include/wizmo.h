@@ -84,7 +84,7 @@ typedef struct _simvr_data_packet
 #endif	/*LINUX*/
 
 //バージョン
-#define WIZMO_SDKVERSION "5.01"
+#define WIZMO_SDKVERSION "5.03"
 
 //Default Packet
 WIZMODataPacket WIZMOPORT DefaultWIZMOPacket();

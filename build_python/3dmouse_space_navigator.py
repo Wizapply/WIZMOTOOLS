@@ -17,8 +17,8 @@ simvr_variable = {
     'pitch': 0.0,
     'roll': 0.0,
     'yaw': 0.0,
-    'accel_gain': 0.5,
-    'speed_gain': 0.5,
+    'accel_gain': 0.2,
+    'speed_gain': 0.6,
     'is_origin': 0
 }
 
@@ -74,7 +74,7 @@ while wm.get_status() == wizmo.wizmoStatus.Initial:
 # 初期設定
 try:
     wm.simple_motion_ratio_update(0.66, 0.1)
-    wm.speed_gain_mode(wizmo.wizmoSpeedGain.Variable)
+    wm.speed_gain_mode(wizmo.wizmoSpeedGain.Normal)
 except Exception as e:
     print("ERROR: WIZMO 初期設定に失敗しました:", e)
     wm.close()
